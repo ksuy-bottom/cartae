@@ -3,7 +3,7 @@
 
 ♠スペードと♥ハートを6×6グリッドに正しく配置する、1ファイル完結の論理パズルゲームです。
 
-![License](https://img.shields.io/badge/license-MIT-black) ![Puzzles](https://img.shields.io/badge/puzzles-102-crimson) ![No dependencies](https://img.shields.io/badge/dependencies-none-green)
+![License](https://img.shields.io/badge/license-MIT-black) ![Puzzles](https://img.shields.io/badge/puzzles-∞-crimson)　![No dependencies](https://img.shields.io/badge/dependencies-none-green)
 
 ---
 
