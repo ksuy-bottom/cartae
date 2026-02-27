@@ -388,12 +388,14 @@ async function getPuzzle(diff) {
 //  GAME STATE
 // ============================================================
 let currentDiff = '易';
-let currentIdx = 0;       // display number (1-based)
-let puzzleCount = {'易':0,'中':0,'難':0}; // how many generated per diff
 let currentPuzzle = null;
 let userGrid = [];
 let lockedCells = [];
 let statsDiff = '易';
+
+// Puzzle history per difficulty: array of puzzle objects
+const history = {'易':[], '中':[], '難':[]};
+let historyIdx = {'易':-1, '中':-1, '難':-1}; // current position in history
 
 // Stats: per diff, array of times (seconds)
 const stats = {'易':{solved:0,times:[],streak:0,todaySolved:0}, '中':{solved:0,times:[],streak:0,todaySolved:0}, '難':{solved:0,times:[],streak:0,todaySolved:0}};
@@ -440,18 +442,30 @@ async function switchDiff(diff,btn) {
   currentDiff=diff;
   document.querySelectorAll('.diff-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  await loadNewPuzzle();
+  // If no history for this diff yet, load new puzzle; otherwise resume last position
+  if (history[diff].length === 0) {
+    await loadNewPuzzle();
+  } else {
+    showPuzzleAt(historyIdx[diff]);
+  }
 }
 
 async function loadNewPuzzle() {
   const p = await getPuzzle(currentDiff);
-  puzzleCount[currentDiff]++;
-  currentIdx = puzzleCount[currentDiff];
+  history[currentDiff].push(p);
+  historyIdx[currentDiff] = history[currentDiff].length - 1;
+  showPuzzleAt(historyIdx[currentDiff]);
+}
+
+function showPuzzleAt(idx) {
+  const p = history[currentDiff][idx];
   currentPuzzle = p;
   userGrid = p.grid.map(r=>[...r]);
   lockedCells = p.grid.map(r=>r.map(v=>v!==0));
-  document.getElementById('puzzleNum').textContent=`No.${currentIdx}`;
-  document.getElementById('completionBadge').classList.remove('show');
+  const no = idx + 1;
+  document.getElementById('puzzleNum').textContent=`No.${no}`;
+  const key = `${currentDiff}-${idx}`;
+  document.getElementById('completionBadge').classList.toggle('show', !!completed[key]);
   renderGrid();
   renderConstraints();
   updateCounters();
@@ -460,15 +474,29 @@ async function loadNewPuzzle() {
   resetTimer();
 }
 
-async function nextPuzzle() { await loadNewPuzzle(); }
+async function nextPuzzle() {
+  const h = history[currentDiff];
+  const idx = historyIdx[currentDiff];
+  if (idx < h.length - 1) {
+    // Go forward in history
+    historyIdx[currentDiff]++;
+    showPuzzleAt(historyIdx[currentDiff]);
+  } else {
+    // Generate new puzzle
+    await loadNewPuzzle();
+  }
+}
 
 async function prevPuzzle() {
-  // Can't go back to already-used generated puzzles — just generate new
-  await loadNewPuzzle();
+  const idx = historyIdx[currentDiff];
+  if (idx > 0) {
+    historyIdx[currentDiff]--;
+    showPuzzleAt(historyIdx[currentDiff]);
+  }
+  // If already at first puzzle, do nothing
 }
 
 function initPuzzle() {
-  // Re-init current puzzle (reset)
   if (!currentPuzzle) return;
   userGrid = currentPuzzle.grid.map(r=>[...r]);
   lockedCells = currentPuzzle.grid.map(r=>r.map(v=>v!==0));
@@ -578,6 +606,8 @@ function showWin() {
   const s=stats[currentDiff];
   s.solved++; s.streak++; s.todaySolved++;
   if (timerSeconds>0) s.times.push(timerSeconds);
+  const key=`${currentDiff}-${historyIdx[currentDiff]}`;
+  completed[key]=timerSeconds;
   document.getElementById('completionBadge').classList.add('show');
   document.getElementById('winTime').textContent=`⏱ ${formatTime(timerSeconds)}`;
   document.getElementById('winOverlay').classList.add('show');
