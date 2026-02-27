@@ -58,7 +58,7 @@ cartae/
 ## 🛠️ 技術
 
 - 純粋な HTML / CSS / JavaScript（フレームワーク・ライブラリなし）
-- パズルはPythonのバックトラッキングソルバーで自動生成・一意解を検証済み
+- パズルはJavaScriptのバックトラッキングソルバーでブラウザ上でリアルタイム自動生成・一意解を検証済み
 - フォント：[Playfair Display](https://fonts.google.com/specimen/Playfair+Display) / [Courier Prime](https://fonts.google.com/specimen/Courier+Prime)（Google Fonts / OFL）
 
 ---
