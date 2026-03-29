@@ -1,1 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUDOKU — laotour-log</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  :root {
+    --bg: #ffffff;
+    --fg: #222222;
+    --fg-light: #999999;
+    --fg-muted: #bbbbbb;
+    --border-thin: #cccccc;
+    --cell-selected: #e8e8e8;
+    --cell-related: #f5f5f5;
+    --cell-same: #d4d4d4;
+    --given-color: #111111;
+    --input-color: #444444;
+    --note-color: #555555;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 2.5rem 2rem 1.2rem;
+    border-bottom: 1px solid var(--fg);
+    text-align: center;
+  }
+  .site-id {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fg-light);
+    margin-bottom: 1rem;
+  }
+  .site-id a { color: inherit; text-decoration: none; }
+  .site-id a:hover { color: var(--fg); }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .tagline {
+    margin-top: 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--fg-light);
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    gap: 1.4rem;
+  }
+
+  /* ── MODE BAR (6×6 / 9×9) ── */
+  .mode-bar {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    border: 1px solid var(--border-thin);
+    padding: 0.18rem;
+  }
+  .mode-btn {
+    background: none; border: none;
+    font-family: inherit;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-light);
+    cursor: pointer;
+    padding: 0.28rem 0.9rem;
+    transition: background 0.12s, color 0.12s;
+  }
+  .mode-btn:hover  { color: var(--fg); }
+  .mode-btn.active { background: var(--fg); color: var(--bg); }
+
+  /* ── DIFFICULTY ── */
+  .difficulty-bar {
+    display: flex;
+    gap: 1.8rem;
+    align-items: center;
+  }
+  .diff-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-light);
+    text-transform: uppercase;
+  }
+  .diff-btn {
+    background: none; border: none;
+    font-family: inherit;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-light);
+    cursor: pointer;
+    padding: 0.15rem 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .diff-btn:hover  { color: var(--fg); }
+  .diff-btn.active { color: var(--fg); border-bottom-color: var(--fg); }
+
+  /* ── STATUS ── */
+  .status-row { display: flex; gap: 2.5rem; align-items: center; justify-content: center; }
+  .status-item { text-align: center; }
+  .status-val {
+    font-size: 1.4rem;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .status-lbl {
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    color: var(--fg-light);
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+
+  /* ── RECORDS ── */
+  .records {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: min(90vw, 450px);
+  }
+  .records-title {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-light);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-thin);
+    padding-bottom: 0.3rem;
+  }
+  .records-title span:last-child { color: var(--fg-muted); }
+  .record-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-light);
+  }
+  .record-row .rec-rank { color: var(--fg-muted); width: 1.2em; }
+  .record-row .rec-time { color: var(--fg); }
+  .record-row.best-ever .rec-time {
+    color: var(--fg);
+    font-weight: 700;
+  }
+  .record-row.new-best .rec-time::after {
+    content: ' ★';
+    font-size: 0.55rem;
+    color: var(--fg);
+  }
+  .records-best {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--fg-light);
+    border-top: 1px solid var(--border-thin);
+    padding-top: 0.3rem;
+    margin-top: 0.1rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .records-best .best-val { color: var(--fg); font-weight: 700; letter-spacing: 0.08em; }
+
+  /* ── GRID WRAPPER ── */
+  .grid-wrap {
+    /* width set by JS depending on mode */
+    aspect-ratio: 1;
+    transition: width 0.25s ease;
+  }
+
+  /* 9×9 wrapper */
+  .grid-wrap.mode-9 { width: min(90vw, 450px); }
+  /* 6×6 wrapper — slightly narrower to stay square and comfortable */
+  .grid-wrap.mode-6 {
+    width: min(66vw, 330px);
+    aspect-ratio: 1;
+  }
+
+  /* ── GRID ── */
+  #grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    border: 2px solid var(--fg);
+  }
+  #grid.mode-9 {
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+  }
+  #grid.mode-6 {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+  }
+
+  /* ── CELL ── */
+  .cell {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    transition: background 0.08s;
+    border-right: 1px solid var(--border-thin);
+    border-bottom: 1px solid var(--border-thin);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .cell.selected { background: var(--cell-selected); }
+  .cell.related  { background: var(--cell-related); }
+  .cell.same-num { background: var(--cell-same); }
+
+  /* ── 9×9 BLOCK BORDERS ── */
+  /* trailing */
+  #grid.mode-9 .cell:nth-child(9n)        { border-right: none; }
+  #grid.mode-9 .cell:nth-last-child(-n+9) { border-bottom: none; }
+  /* thick right: col 3, 6 */
+  #grid.mode-9 .cell:nth-child(9n+3),
+  #grid.mode-9 .cell:nth-child(9n+6) { border-right: 2px solid var(--fg); }
+  /* thick bottom: row 3, 6 */
+  #grid.mode-9 .cell:nth-child(n+19):nth-child(-n+27),
+  #grid.mode-9 .cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--fg); }
+
+  /* ── 6×6 BLOCK BORDERS (blocks are 2 rows × 3 cols) ── */
+  /* trailing */
+  #grid.mode-6 .cell:nth-child(6n)        { border-right: none; }
+  #grid.mode-6 .cell:nth-last-child(-n+6) { border-bottom: none; }
+  /* thick right: col 3 (every 6th+3) */
+  #grid.mode-6 .cell:nth-child(6n+3) { border-right: 2px solid var(--fg); }
+  /* thick bottom: row 2, 4 (after 2nd and 4th rows) */
+  #grid.mode-6 .cell:nth-child(n+7):nth-child(-n+12),
+  #grid.mode-6 .cell:nth-child(n+19):nth-child(-n+24) { border-bottom: 2px solid var(--fg); }
+
+  /* ── NUMBERS ── */
+  .cell-num {
+    font-size: clamp(13px, 3.6vw, 24px);
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+    color: var(--given-color);
+  }
+  #grid.mode-6 .cell-num { font-size: clamp(14px, 4vw, 26px); }
+
+  .cell.user .cell-num { font-weight: 400; color: var(--input-color); }
+
+  /* ── NOTES ── */
+  .notes-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    padding: 3%;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .notes-grid.has-notes { visibility: visible; }
+
+  /* 9×9: 3×3 note grid */
+  #grid.mode-9 .notes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+  /* 6×6: 3×2 note grid (3 cols, 2 rows for nums 1-6) */
+  #grid.mode-6 .notes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .note-n {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(6px, 1.5vw, 11px);
+    color: var(--note-color);
+    font-family: 'Courier New', monospace;
+    line-height: 1;
+    font-weight: 400;
+  }
+  #grid.mode-6 .note-n { font-size: clamp(7px, 1.8vw, 12px); }
+
+  /* ── NUMPAD ── */
+  .numpad {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: min(90vw, 450px);
+  }
+  .num-btn {
+    background: none;
+    border: 1px solid var(--border-thin);
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: var(--fg);
+    width: 42px; height: 42px;
+    cursor: pointer;
+    transition: background 0.08s, border-color 0.08s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .num-btn:hover  { background: var(--cell-related); border-color: var(--fg); }
+  .num-btn:active { background: var(--cell-selected); }
+  .num-btn.hidden { display: none; }
+
+  /* ── CONTROLS ── */
+  .controls {
+    display: flex;
+    gap: 1.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .ctrl-btn {
+    background: none; border: none;
+    font-family: inherit;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--fg-light);
+    cursor: pointer;
+    padding: 0.15rem 0;
+    border-bottom: 1px solid transparent;
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .ctrl-btn:hover   { color: var(--fg); border-bottom-color: var(--fg); }
+  .ctrl-btn.note-on { color: var(--fg); border-bottom-color: var(--fg); }
+  .sep { color: var(--fg-muted); font-size: 0.68rem; }
+
+  /* ── CLEAR ANIMATION ── */
+  @keyframes cellFlash {
+    0%   { background: var(--bg); }
+    40%  { background: var(--fg); }
+    100% { background: var(--bg); }
+  }
+  .cell.flash { animation: cellFlash 0.45s ease forwards; }
+
+  /* ── COMPLETE MESSAGE ── */
+  .complete-msg {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--fg);
+    opacity: 0;
+    transition: opacity 0.5s;
+    min-height: 1.2em;
+  }
+  .complete-msg.show { opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--fg);
+    padding: 1.1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .footer-left, .footer-right {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    color: var(--fg-light);
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-id"><a href="https://laotour-log.github.io/my-games/">laotour-log / games</a></div>
+  <h1>SUDOKU</h1>
+  <div class="tagline" id="tagline">// number · logic · 9×9</div>
+</header>
+
+<main>
+
+  <!-- Mode toggle -->
+  <div class="mode-bar">
+    <button class="mode-btn" data-mode="6">6×6</button>
+    <button class="mode-btn active" data-mode="9">9×9</button>
+  </div>
+
+  <!-- Difficulty -->
+  <div class="difficulty-bar">
+    <span class="diff-label">Level</span>
+    <button class="diff-btn active" data-diff="easy">EASY</button>
+    <button class="diff-btn"        data-diff="medium">MEDIUM</button>
+    <button class="diff-btn"        data-diff="hard">HARD</button>
+  </div>
+
+  <!-- Status: timer only -->
+  <div class="status-row">
+    <div class="status-item">
+      <div class="status-val" id="timer-val">0:00</div>
+      <div class="status-lbl">Time</div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid-wrap mode-9" id="grid-wrap">
+    <div id="grid" class="mode-9"></div>
+  </div>
+
+  <!-- Numpad -->
+  <div class="numpad" id="numpad">
+    <button class="num-btn" data-n="1">1</button>
+    <button class="num-btn" data-n="2">2</button>
+    <button class="num-btn" data-n="3">3</button>
+    <button class="num-btn" data-n="4">4</button>
+    <button class="num-btn" data-n="5">5</button>
+    <button class="num-btn" data-n="6">6</button>
+    <button class="num-btn" data-n="7">7</button>
+    <button class="num-btn" data-n="8">8</button>
+    <button class="num-btn" data-n="9">9</button>
+  </div>
+
+  <!-- Controls -->
+  <div class="controls">
+    <button class="ctrl-btn" id="new-btn">NEW GAME</button>
+    <span class="sep">·</span>
+    <button class="ctrl-btn" id="reset-btn">RESET</button>
+    <span class="sep">·</span>
+    <button class="ctrl-btn" id="note-btn">NOTE: OFF</button>
+  </div>
+
+  <div class="complete-msg" id="complete-msg">PUZZLE COMPLETE</div>
+
+  <!-- Records -->
+  <div class="records" id="records" style="display:none">
+    <div class="records-title">
+      <span>Recent</span>
+      <span id="records-context"></span>
+    </div>
+    <div id="recent-list"></div>
+    <div class="records-best" id="best-row" style="display:none">
+      <span>Best</span>
+      <span class="best-val" id="best-val">—</span>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-left">GAME ROOM // puzzle · logic</div>
+  <div class="footer-right">MIT License © 2026 laotour-log</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG PER MODE
+// ═══════════════════════════════════════════════════════════
+
+const MODE_CONFIG = {
+  9: {
+    size: 9,
+    cells: 81,
+    boxRows: 3, boxCols: 3,
+    clues: { easy: 36, medium: 30, hard: 26 },
+    maxNum: 9,
+    noteRows: 3, noteCols: 3,
+  },
+  6: {
+    size: 6,
+    cells: 36,
+    boxRows: 2, boxCols: 3,
+    clues: { easy: 18, medium: 14, hard: 10 },
+    maxNum: 6,
+    noteRows: 2, noteCols: 3,
+  },
+};
+
+// ═══════════════════════════════════════════════════════════
+// GRID UTILITIES (mode-aware)
+// ═══════════════════════════════════════════════════════════
+
+let CFG = MODE_CONFIG[9]; // active config
+
+function rowOf(i)  { return Math.floor(i / CFG.size); }
+function colOf(i)  { return i % CFG.size; }
+function boxOf(i)  {
+  return Math.floor(rowOf(i) / CFG.boxRows) * (CFG.size / CFG.boxCols)
+       + Math.floor(colOf(i) / CFG.boxCols);
+}
+
+function buildPeers() {
+  const peers = [];
+  for (let i = 0; i < CFG.cells; i++) {
+    const r = rowOf(i), c = colOf(i), b = boxOf(i);
+    const set = [];
+    for (let j = 0; j < CFG.cells; j++) {
+      if (j !== i && (rowOf(j) === r || colOf(j) === c || boxOf(j) === b)) {
+        set.push(j);
+      }
+    }
+    peers.push(set);
+  }
+  return peers;
+}
+
+let PEERS = buildPeers();
+
+// ═══════════════════════════════════════════════════════════
+// SOLVER
+// ═══════════════════════════════════════════════════════════
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function canPlace(board, pos, num) {
+  for (const p of PEERS[pos]) {
+    if (board[p] === num) return false;
+  }
+  return true;
+}
+
+function solve(board, randomize) {
+  let pos = -1;
+  for (let i = 0; i < CFG.cells; i++) {
+    if (board[i] === 0) { pos = i; break; }
+  }
+  if (pos === -1) return true;
+
+  const nums = randomize
+    ? shuffle([...Array(CFG.maxNum)].map((_, i) => i + 1))
+    : [...Array(CFG.maxNum)].map((_, i) => i + 1);
+
+  for (const n of nums) {
+    if (canPlace(board, pos, n)) {
+      board[pos] = n;
+      if (solve(board, randomize)) return true;
+      board[pos] = 0;
+    }
+  }
+  return false;
+}
+
+function countSols(board, limit) {
+  let pos = -1;
+  for (let i = 0; i < CFG.cells; i++) {
+    if (board[i] === 0) { pos = i; break; }
+  }
+  if (pos === -1) return 1;
+
+  let count = 0;
+  for (let n = 1; n <= CFG.maxNum; n++) {
+    if (canPlace(board, pos, n)) {
+      board[pos] = n;
+      count += countSols(board, limit);
+      board[pos] = 0;
+      if (count >= limit) return count;
+    }
+  }
+  return count;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PUZZLE GENERATION
+// ═══════════════════════════════════════════════════════════
+
+function generatePuzzle(difficulty) {
+  const solution = new Array(CFG.cells).fill(0);
+  solve(solution, true);
+
+  const puzzle  = solution.slice();
+  const target  = CFG.cells - CFG.clues[difficulty];
+  const order   = shuffle([...Array(CFG.cells).keys()]);
+
+  let removed = 0;
+  for (const idx of order) {
+    if (removed >= target) break;
+    const saved = puzzle[idx];
+    puzzle[idx] = 0;
+    const copy = puzzle.slice();
+    if (countSols(copy, 2) === 1) {
+      removed++;
+    } else {
+      puzzle[idx] = saved;
+    }
+  }
+
+  return { solution: solution.slice(), puzzle: puzzle.slice() };
+}
+
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
+
+const G = {
+  solution:   [],
+  puzzle:     [],
+  board:      [],
+  given:      [],
+  errorCell:  [],
+  notes:      [],
+  selected:   -1,
+  noteMode:   false,
+  difficulty: 'easy',
+  gridMode:   9,
+  timer:      0,
+  timerRef:   null,
+  complete:   false,
+};
+
+// ═══════════════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════════════
+
+function startTimer() {
+  clearInterval(G.timerRef);
+  G.timer = 0;
+  renderTimer();
+  G.timerRef = setInterval(() => {
+    if (!G.complete) { G.timer++; renderTimer(); }
+  }, 1000);
+}
+
+function renderTimer() {
+  const m = Math.floor(G.timer / 60);
+  const s = G.timer % 60;
+  document.getElementById('timer-val').textContent =
+    `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DOM CONSTRUCTION
+// ═══════════════════════════════════════════════════════════
+
+function buildGrid() {
+  const grid = document.getElementById('grid');
+  const wrap = document.getElementById('grid-wrap');
+
+  // Update grid mode classes
+  grid.className = `mode-${CFG.size}`;
+  wrap.className = `grid-wrap mode-${CFG.size}`;
+
+  grid.innerHTML = '';
+
+  for (let i = 0; i < CFG.cells; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.i = i;
+
+    const numSpan = document.createElement('span');
+    numSpan.className = 'cell-num';
+    cell.appendChild(numSpan);
+
+    const ng = document.createElement('div');
+    ng.className = 'notes-grid';
+    ng.style.gridTemplateColumns = `repeat(${CFG.noteCols}, 1fr)`;
+    ng.style.gridTemplateRows    = `repeat(${CFG.noteRows}, 1fr)`;
+    for (let n = 1; n <= CFG.maxNum; n++) {
+      const slot = document.createElement('div');
+      slot.className = 'note-n';
+      slot.dataset.n = n;
+      ng.appendChild(slot);
+    }
+    cell.appendChild(ng);
+
+    cell.addEventListener('click', () => selectCell(i));
+    grid.appendChild(cell);
+  }
+
+  // Update numpad visibility
+  document.querySelectorAll('.num-btn').forEach(btn => {
+    const n = +btn.dataset.n;
+    btn.classList.toggle('hidden', n > CFG.maxNum);
+  });
+
+  // Update tagline
+  document.getElementById('tagline').textContent =
+    `// number · logic · ${CFG.size}×${CFG.size}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+
+function renderAll() {
+  document.querySelectorAll('.cell').forEach(cell => {
+    const i       = +cell.dataset.i;
+    const val     = G.board[i];
+    const isGiven = G.given[i];
+    const numSpan = cell.querySelector('.cell-num');
+    const ng      = cell.querySelector('.notes-grid');
+
+    cell.className = 'cell';
+    if (isGiven)         cell.classList.add('given');
+    if (!isGiven && val) cell.classList.add('user');
+
+    if (val !== 0) {
+      numSpan.textContent = val;
+      ng.classList.remove('has-notes');
+    } else {
+      numSpan.textContent = '';
+      const set = G.notes[i];
+      if (set.size > 0) {
+        ng.classList.add('has-notes');
+        ng.querySelectorAll('.note-n').forEach(slot => {
+          slot.textContent = set.has(+slot.dataset.n) ? slot.dataset.n : '';
+        });
+      } else {
+        ng.classList.remove('has-notes');
+      }
+    }
+  });
+
+  applyHighlight();
+}
+
+function applyHighlight() {
+  const sel = G.selected;
+  document.querySelectorAll('.cell').forEach(cell => {
+    cell.classList.remove('selected', 'related', 'same-num');
+  });
+  if (sel < 0) return;
+
+  const sr = rowOf(sel), sc = colOf(sel), sb = boxOf(sel);
+  const sv = G.board[sel];
+
+  document.querySelectorAll('.cell').forEach(cell => {
+    const i = +cell.dataset.i;
+    if (i === sel) {
+      cell.classList.add('selected');
+    } else if (rowOf(i) === sr || colOf(i) === sc || boxOf(i) === sb) {
+      cell.classList.add('related');
+    }
+    if (sv !== 0 && G.board[i] === sv) {
+      cell.classList.add('same-num');
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INPUT
+// ═══════════════════════════════════════════════════════════
+
+function selectCell(i) {
+  G.selected = i;
+  applyHighlight();
+}
+
+function inputNumber(n) {
+  if (n < 1 || n > CFG.maxNum) return; // ignore out-of-range keys
+  const i = G.selected;
+  if (i < 0 || G.complete) return;
+  if (G.given[i]) return;
+
+  if (G.noteMode) {
+    if (G.board[i] !== 0) return;
+    const set = G.notes[i];
+    if (set.has(n)) set.delete(n);
+    else            set.add(n);
+    renderAll();
+    return;
+  }
+
+  const prevVal = G.board[i];
+  G.board[i] = n;
+  const correct = (n === G.solution[i]);
+  G.errorCell[i] = !correct;
+
+  if (correct) {
+    G.notes[i].clear();
+    for (const p of PEERS[i]) G.notes[p].delete(n);
+  }
+
+  renderAll();
+  checkComplete();
+}
+
+function deleteInput() {
+  const i = G.selected;
+  if (i < 0 || G.complete) return;
+  if (G.given[i]) return;
+  G.board[i] = 0;
+  G.errorCell[i] = false;
+  renderAll();
+}
+
+function moveSelection(di) {
+  let i = G.selected < 0 ? 0 : G.selected;
+  const r = rowOf(i), c = colOf(i);
+  let nr = r, nc = c;
+  const S = CFG.size - 1;
+  if (di === -CFG.size) nr = Math.max(0, r - 1);
+  if (di ===  CFG.size) nr = Math.min(S, r + 1);
+  if (di === -1) nc = Math.max(0, c - 1);
+  if (di ===  1) nc = Math.min(S, c + 1);
+  G.selected = nr * CFG.size + nc;
+  applyHighlight();
+}
+
+// ═══════════════════════════════════════════════════════════
+// COMPLETION
+// ═══════════════════════════════════════════════════════════
+
+function checkComplete() {
+  for (let i = 0; i < CFG.cells; i++) {
+    if (G.board[i] !== G.solution[i]) return;
+  }
+  G.complete = true;
+  clearInterval(G.timerRef);
+  playCompleteAnimation();
+}
+
+function playCompleteAnimation() {
+  const cells = document.querySelectorAll('.cell');
+  const n = CFG.cells;
+
+  // Wave order: diagonal (row + col)
+  const order = [...Array(n).keys()].sort((a, b) => {
+    const da = Math.floor(a / CFG.size) + (a % CFG.size);
+    const db = Math.floor(b / CFG.size) + (b % CFG.size);
+    return da - db;
+  });
+
+  order.forEach((idx, step) => {
+    setTimeout(() => {
+      const cell = cells[idx];
+      cell.classList.remove('flash');
+      void cell.offsetWidth;
+      cell.classList.add('flash');
+    }, step * (CFG.size === 6 ? 25 : 18));
+  });
+
+  const maxStep = n - 1;
+  const delay = maxStep * (CFG.size === 6 ? 25 : 18) + 450;
+  setTimeout(() => {
+    document.getElementById('complete-msg').classList.add('show');
+    saveRecord(G.timer);
+  }, delay);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RECORDS
+// ═══════════════════════════════════════════════════════════
+
+function recordKey() {
+  return `sudoku_best_${G.gridMode}_${G.difficulty}`;
+}
+
+function recentKey() {
+  return `sudoku_recent_${G.gridMode}_${G.difficulty}`;
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m}:${String(sec).padStart(2, '0')}`;
+}
+
+function saveRecord(elapsed) {
+  // --- best (localStorage, persists) ---
+  const bKey   = recordKey();
+  const prevBest = parseInt(localStorage.getItem(bKey) || '999999', 10);
+  const isNewBest = elapsed < prevBest;
+  if (isNewBest) localStorage.setItem(bKey, elapsed);
+  const best = isNewBest ? elapsed : prevBest;
+
+  // --- recent 3 (sessionStorage, per session) ---
+  const rKey = recentKey();
+  let recent = [];
+  try { recent = JSON.parse(sessionStorage.getItem(rKey) || '[]'); } catch {}
+  recent.unshift(elapsed);
+  if (recent.length > 3) recent = recent.slice(0, 3);
+  sessionStorage.setItem(rKey, JSON.stringify(recent));
+
+  renderRecords(recent, best, isNewBest);
+}
+
+function renderRecords(recent, best, isNewBest) {
+  const wrap    = document.getElementById('records');
+  const ctx     = document.getElementById('records-context');
+  const list    = document.getElementById('recent-list');
+  const bestRow = document.getElementById('best-row');
+  const bestVal = document.getElementById('best-val');
+
+  ctx.textContent = `${G.gridMode}×${G.gridMode} · ${G.difficulty}`;
+  list.innerHTML  = '';
+
+  recent.forEach((t, idx) => {
+    const row = document.createElement('div');
+    row.className = 'record-row' + (idx === 0 && isNewBest ? ' new-best' : '');
+    row.innerHTML =
+      `<span class="rec-rank">${idx + 1}</span>` +
+      `<span class="rec-time">${fmtTime(t)}</span>`;
+    list.appendChild(row);
+  });
+
+  if (best < 999999) {
+    bestRow.style.display = '';
+    bestVal.textContent   = fmtTime(best);
+  }
+
+  wrap.style.display = '';
+}
+
+function loadRecordsDisplay() {
+  const bKey  = recordKey();
+  const rKey  = recentKey();
+  const best  = parseInt(localStorage.getItem(bKey) || '999999', 10);
+  let recent  = [];
+  try { recent = JSON.parse(sessionStorage.getItem(rKey) || '[]'); } catch {}
+
+  if (recent.length === 0 && best === 999999) {
+    document.getElementById('records').style.display = 'none';
+    return;
+  }
+  renderRecords(recent, best, false);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GAME MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+
+function newGame() {
+  document.getElementById('complete-msg').classList.remove('show');
+  G.complete  = false;
+  G.selected  = -1;
+  G.noteMode  = false;
+  const nb = document.getElementById('note-btn');
+  nb.textContent = 'NOTE: OFF';
+  nb.classList.remove('note-on');
+
+  const { solution, puzzle } = generatePuzzle(G.difficulty);
+  G.solution  = solution;
+  G.puzzle    = puzzle;
+  G.board     = puzzle.slice();
+  G.given     = puzzle.map(v => v !== 0);
+  G.errorCell = new Array(CFG.cells).fill(false);
+  G.notes     = Array.from({ length: CFG.cells }, () => new Set());
+
+  startTimer();
+  renderAll();
+  document.querySelectorAll('.cell').forEach(c => c.classList.remove('flash'));
+  loadRecordsDisplay();
+}
+
+function resetGame() {
+  document.getElementById('complete-msg').classList.remove('show');
+  G.complete  = false;
+  G.selected  = -1;
+  G.board     = G.puzzle.slice();
+  G.errorCell = new Array(CFG.cells).fill(false);
+  G.notes     = Array.from({ length: CFG.cells }, () => new Set());
+  startTimer();
+  renderAll();
+  document.querySelectorAll('.cell').forEach(c => c.classList.remove('flash'));
+  loadRecordsDisplay();
+}
+
+function switchMode(mode) {
+  G.gridMode = mode;
+  CFG = MODE_CONFIG[mode];
+  PEERS = buildPeers();
+  buildGrid();
+  newGame();
+}
+
+// ═══════════════════════════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════════════════════════
+
+// Mode
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = +btn.dataset.mode;
+    if (mode === G.gridMode) return;
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    switchMode(mode);
+  });
+});
+
+// Difficulty
+document.querySelectorAll('.diff-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    G.difficulty = btn.dataset.diff;
+    newGame();
+  });
+});
+
+// Numpad
+document.getElementById('numpad').addEventListener('click', e => {
+  const b = e.target.closest('.num-btn');
+  if (b) inputNumber(+b.dataset.n);
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key >= '1' && e.key <= '9') { inputNumber(+e.key); return; }
+  if (e.key === '0' || e.key === 'Backspace' || e.key === 'Delete') { deleteInput(); return; }
+  const moves = {
+    ArrowUp:    -CFG.size,
+    ArrowDown:   CFG.size,
+    ArrowLeft:  -1,
+    ArrowRight:  1,
+  };
+  if (e.key in moves) { e.preventDefault(); moveSelection(moves[e.key]); }
+});
+
+// Note
+document.getElementById('note-btn').addEventListener('click', () => {
+  G.noteMode = !G.noteMode;
+  const btn = document.getElementById('note-btn');
+  btn.textContent = G.noteMode ? 'NOTE: ON' : 'NOTE: OFF';
+  btn.classList.toggle('note-on', G.noteMode);
+});
+
+// New / Reset
+document.getElementById('new-btn').addEventListener('click', newGame);
+document.getElementById('reset-btn').addEventListener('click', resetGame);
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+
+buildGrid();
+newGame();
+</script>
+</body>
+</html>
