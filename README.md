@@ -15,20 +15,26 @@
 9×9または6×6のグリッドに1〜9（または1〜6）の数字を配置する論理パズル。
 各行・列・ブロックに同じ数字が重複しないように埋めよ。
 
+### 🥔 IMO & BROCCOLI
+
+隠された野菜の並びを推理する、ヒット&ブロー風の論理推理ゲーム。
+
 ## ▶ プレイ
 
-**[► ここでプレイ]https://laotour-log.github.io/my-games/)**
+**[► ここでプレイ](https://laotour-log.github.io/my-games/)**
 
 ## 📁 ファイル構成
 ```
-cartae/
-├── index.html        # トップページ
-├── carte/
-│   └── index.html   # CARTAEゲーム本体
+my-games/
+├── index.html              # トップページ
+├── cartae/
+│   └── index.html          # CARTAEゲーム本体
 ├── minesweeper/
-│   └── index.html   # MINESWEEPERゲーム本体
+│   └── index.html          # MINESWEEPERゲーム本体
 ├── sudoku/
-│   └── index.html    # SUDOKUゲーム本体
+│   └── index.html          # SUDOKUゲーム本体
+├── imo_and_broccoli/
+│   └── index.html          # IMO & BROCCOLIゲーム本体
 ├── README.md
 └── LICENSE
 ```
