@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMO &amp; BROCCOLI — laotour-log</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --wood-dark: #2b1d14;
+    --wood: #3d2a1c;
+    --wood-light: #4e3826;
+    --board: #e9dfc8;
+    --board-hole: #cabd9c;
+    --ink: #2b1d14;
+    --ink-light: #6b5c48;
+    --paper: #f3ecd9;
+    --accent: #b23b2e;
+    --peg-black: #1a1a1a;
+    --peg-white: #f4f1e8;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    background: var(--wood-dark);
+    background-image:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.06) 0px, transparent 2px, transparent 40px, rgba(0,0,0,0.06) 42px),
+      radial-gradient(ellipse at 30% 0%, rgba(255,200,140,0.05) 0%, transparent 55%);
+    color: var(--paper);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 60px;
+  }
+
+  header { text-align: center; margin-bottom: 22px; }
+  .eyebrow {
+    font-size: 0.9rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #e3d3ae;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: clamp(2.8rem, 9vw, 4.6rem);
+    letter-spacing: 0.06em;
+    color: var(--paper);
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+  }
+  .tagline {
+    margin-top: 8px;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    color: #e3d3ae;
+  }
+  .objective {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    color: var(--paper);
+  }
+
+  /* ── SETTINGS ── */
+  .settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    max-width: 560px;
+  }
+  .setting-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wood-light);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 3px;
+    padding: 5px 8px;
+  }
+  .setting-label {
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e3d3ae;
+    padding-right: 4px;
+  }
+  .setting-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #ecdcb8;
+    padding: 6px 13px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .setting-btn:hover { border-color: var(--accent); color: var(--paper); }
+  .setting-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .setting-btn.retry-btn {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: bold;
+  }
+  .setting-btn.retry-btn:hover { background: #8f2e24; border-color: #8f2e24; }
+
+  /* ── STATUS ── */
+  .status-row {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 18px;
+  }
+  .status-item { text-align: center; min-height: 2.4rem; display: flex; flex-direction: column; justify-content: center; }
+  .status-val {
+    font-family: 'Special Elite', monospace;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--paper);
+  }
+  .status-lbl {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #e3d3ae;
+    margin-top: 4px;
+  }
+
+  /* ── THE BOARD ── */
+  .board-frame {
+    background: linear-gradient(160deg, var(--wood-light), var(--wood) 60%);
+    border: 6px solid var(--wood-dark);
+    border-radius: 8px;
+    padding: 18px 16px 14px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.04);
+    width: min(94vw, 520px);
+  }
+
+  .history {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .hrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--board);
+    border-radius: 4px;
+    padding: 7px 10px;
+    animation: rowIn 0.25s ease both;
+  }
+  @keyframes rowIn { from { opacity:0; transform: translateY(-6px);} to {opacity:1; transform:translateY(0);} }
+
+  .hrow-idx {
+    font-family: 'Special Elite', monospace;
+    font-size: 1.05rem;
+    color: var(--ink-light);
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .hrow-pegs { display: flex; gap: 6px; flex: 1; }
+  .peg-slot {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--board-hole);
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .peg {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #f8f4e8;
+    box-shadow: inset -2px -3px 4px rgba(0,0,0,0.15), inset 2px 2px 3px rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 25px;
+    line-height: 1;
+  }
+  .hrow-feedback {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--board-hole);
+    border-radius: 4px;
+    padding: 7px 12px;
+    flex-shrink: 0;
+  }
+  .fb-count {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Special Elite', monospace;
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+  .fb-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .fb-dot.hit { background: var(--peg-black); box-shadow: inset 1px 1px 1px rgba(255,255,255,0.3); }
+  .fb-dot.blow { background: var(--peg-white); border: 1.5px solid var(--ink-light); box-shadow: inset -1px -1px 1px rgba(0,0,0,0.15); }
+
+  /* secret answer row — hidden until win/lose, then flips open */
+  .secret-panel {
+    position: relative;
+    background: rgba(0,0,0,0.05);
+    border: 1.5px dashed var(--ink-light);
+    border-radius: 6px;
+    padding: 14px 10px 10px;
+  }
+  .secret-panel::before {
+    content: '🔒';
+    position: absolute;
+    top: -11px; left: 12px;
+    background: var(--paper);
+    padding: 0 6px;
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  .secret-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    perspective: 700px;
+  }
+  .row-divider {
+    border-top: 1px dashed rgba(0,0,0,0.15);
+    margin: 2px 4px;
+  }
+  .secret-slot {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .secret-slot.flip { animation: secretFlip 0.6s ease; }
+  @keyframes secretFlip {
+    0%   { transform: rotateY(0deg); }
+    50%  { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); }
+  }
+  .secret-slot .peg { width: 50px; height: 50px; font-size: 32px; }
+  .secret-peg-hidden {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--wood-light);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    color: var(--paper);
+  }
+
+  /* current guess row */
+  .current-row {
+    background: var(--paper);
+    border-radius: 5px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .current-slots { display: flex; gap: 8px; justify-content: center; }
+  .cur-slot {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: var(--board-hole);
+    box-shadow: inset 0 3px 5px rgba(0,0,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.08s;
+    position: relative;
+  }
+  .cur-slot:hover { transform: scale(1.05); }
+  .cur-slot .peg { width: 50px; height: 50px; font-size: 32px; }
+  .cur-slot.next::after {
+    content: '';
+    position: absolute; inset: -3px;
+    border: 2px dashed var(--accent);
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: pulse 1.2s ease infinite;
+  }
+  @keyframes pulse { 0%,100% {opacity:0.3;} 50% {opacity:0.7;} }
+
+  .palette { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .pal-swatch {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: #f8f4e8;
+    box-shadow: inset -2px -3px 4px rgba(0,0,0,0.15), inset 2px 2px 3px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.3);
+    transition: transform 0.1s;
+    border: 2px solid transparent;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    line-height: 1;
+  }
+  .pal-swatch:hover { transform: translateY(-3px); }
+
+  .row-actions { display: flex; gap: 8px; justify-content: center; }
+  .action-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .action-btn:hover { background: var(--ink); color: var(--paper); }
+  .action-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .action-btn.primary:hover { background: #8f2e24; }
+  .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .action-btn:disabled:hover { background: transparent; color: var(--ink); }
+  .action-btn.primary:disabled:hover { background: var(--accent); color: #fff; }
+
+  .legend {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 1.05rem;
+    color: #e3d3ae;
+    letter-spacing: 0.02em;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--paper); box-sizing: border-box; flex-shrink: 0; }
+  .legend .dot.hit { background: var(--peg-black); }
+  .legend .dot.blow { background: var(--peg-white); }
+
+  /* ── WIN OVERLAY ── */
+  .win-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(20,13,8,0.92);
+    z-index: 200;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 10px;
+  }
+  .win-overlay.show { display: flex; }
+  .imo-big {
+    font-family: 'Special Elite', monospace;
+    font-size: clamp(4.5rem, 22vw, 9rem);
+    color: var(--accent);
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.45);
+    line-height: 1;
+    animation: imoPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes imoPop {
+    0%   { transform: scale(0) rotate(-12deg); opacity: 0; }
+    55%  { transform: scale(1.2) rotate(6deg); opacity: 1; }
+    75%  { transform: scale(0.95) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .win-title {
+    font-family: 'Special Elite', monospace;
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    color: var(--paper);
+    animation: fadeup 0.5s 0.55s both ease;
+  }
+  .win-sub { font-size: 1rem; letter-spacing: 0.1em; color: #ecdcb8; animation: fadeup 0.5s 0.7s both ease; }
+  .win-hint {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: #e3d3ae;
+    margin-top: 14px;
+    animation: fadeup 0.5s 0.9s both ease;
+  }
+  @keyframes fadeup { from{opacity:0; transform: translateY(14px);} to{opacity:1; transform: translateY(0);} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">laotour-log / games // deduction</div>
+  <h1>IMO &amp; BROCCOLI</h1>
+  <div class="tagline">Hit &amp; Blow</div>
+  <div class="objective">隠された野菜を当てよう</div>
+</header>
+
+<div class="settings">
+  <div class="setting-group">
+    <span class="setting-label">桁数</span>
+    <button class="setting-btn" data-len="3">3</button>
+    <button class="setting-btn active" data-len="4">4</button>
+  </div>
+  <div class="setting-group">
+    <span class="setting-label">重複</span>
+    <button class="setting-btn active" data-rep="1">あり</button>
+    <button class="setting-btn" data-rep="0">なし</button>
+  </div>
+  <div class="setting-group">
+    <button class="setting-btn retry-btn" id="restartBtn">リトライ</button>
+  </div>
+</div>
+
+<div class="status-row">
+  <div class="status-item">
+    <div class="status-val" id="attemptsVal">0/10</div>
+    <div class="status-lbl">Attempts</div>
+  </div>
+</div>
+
+<div class="board-frame">
+  <div class="legend">
+    <span><span class="dot hit"></span> Hit（位置も野菜も正解）</span>
+    <span><span class="dot blow"></span> Blow（野菜のみ正解）</span>
+  </div>
+
+  <div class="current-row">
+    <div class="secret-panel">
+      <div class="secret-row" id="secretRow"></div>
+    </div>
+    <div class="row-divider"></div>
+    <div class="current-slots" id="currentSlots"></div>
+    <div class="palette" id="palette"></div>
+    <div class="row-actions">
+      <button class="action-btn" id="clearBtn">リセット</button>
+      <button class="action-btn primary" id="submitBtn" disabled>推理する</button>
+    </div>
+  </div>
+
+  <div class="history" id="history"></div>
+</div>
+
+<div class="win-overlay" id="winOverlay">
+  <div class="imo-big">IMO!</div>
+  <div class="win-title">CRACKED!</div>
+  <div class="win-sub" id="winSub"></div>
+  <div class="win-hint">タップして閉じる</div>
+</div>
+
+<div class="win-overlay" id="loseOverlay">
+  <div class="win-title" style="color: var(--accent);">OUT OF TRIES</div>
+  <div class="win-sub">10回以内に当てられませんでした</div>
+  <div class="win-hint">タップして閉じる</div>
+</div>
+
+<script>
+// ============================================================
+// PEG PALETTE — vegetables only (fixed at 6)
+// ============================================================
+const COLORS = [
+  '🍅', // tomato
+  '🥕', // carrot
+  '🥔', // potato (imo)
+  '🥦', // broccoli
+  '🍆', // eggplant
+  '🌽', // corn
+];
+
+const MAX_ATTEMPTS = 10;
+
+const S = {
+  len: 4,
+  colorCount: 6,
+  allowRepeat: true,
+  secret: [],
+  current: [],
+  selected: 0,
+  attempts: 0,
+  over: false,
+};
+
+// ============================================================
+// SETTINGS UI
+// ============================================================
+document.querySelectorAll('[data-len]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-len]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    S.len = +btn.dataset.len;
+    newGame();
+  });
+});
+document.querySelectorAll('[data-rep]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-rep]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    S.allowRepeat = btn.dataset.rep === '1';
+    newGame();
+  });
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  S.current = new Array(S.len).fill(null);
+  S.selected = 0;
+  renderCurrent();
+});
+document.getElementById('submitBtn').addEventListener('click', submitGuess);
+document.getElementById('restartBtn').addEventListener('click', () => {
+  document.getElementById('winOverlay').classList.remove('show');
+  document.getElementById('loseOverlay').classList.remove('show');
+  newGame();
+});
+document.getElementById('winOverlay').addEventListener('click', function () {
+  this.classList.remove('show');
+});
+document.getElementById('loseOverlay').addEventListener('click', function () {
+  this.classList.remove('show');
+});
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function makeSecret() {
+  const codes = [...Array(S.colorCount).keys()];
+  const secret = [];
+  if (S.allowRepeat) {
+    for (let i=0;i<S.len;i++) secret.push(codes[Math.floor(Math.random()*codes.length)]);
+  } else {
+    const pool = [...codes];
+    for (let i=0;i<S.len;i++) {
+      if (pool.length === 0) { secret.push(codes[Math.floor(Math.random()*codes.length)]); continue; }
+      const j = Math.floor(Math.random()*pool.length);
+      secret.push(pool.splice(j,1)[0]);
+    }
+  }
+  return secret;
+}
+
+function newGame() {
+  S.secret = makeSecret();
+  S.current = new Array(S.len).fill(null);
+  S.selected = 0;
+  S.attempts = 0;
+  S.over = false;
+  document.getElementById('history').innerHTML = '';
+  document.getElementById('attemptsVal').textContent = `0/${MAX_ATTEMPTS}`;
+  document.getElementById('submitBtn').disabled = true;
+  renderPalette();
+  renderCurrent();
+  renderSecretRow();
+}
+
+function scoreGuess(guess) {
+  let hit = 0, blow = 0;
+  const secretLeft = [];
+  const guessLeft = [];
+  for (let i=0;i<S.len;i++) {
+    if (guess[i] === S.secret[i]) hit++;
+    else { secretLeft.push(S.secret[i]); guessLeft.push(guess[i]); }
+  }
+  const counts = {};
+  secretLeft.forEach(v => counts[v] = (counts[v]||0)+1);
+  guessLeft.forEach(v => {
+    if (counts[v] > 0) { blow++; counts[v]--; }
+  });
+  return { hit, blow };
+}
+
+function submitGuess() {
+  if (S.current.includes(null) || S.over) return;
+  const { hit, blow } = scoreGuess(S.current);
+  S.attempts++;
+  document.getElementById('attemptsVal').textContent = `${S.attempts}/${MAX_ATTEMPTS}`;
+  addHistoryRow(S.current.slice(), hit, blow);
+  S.current = new Array(S.len).fill(null);
+  S.selected = 0;
+  renderCurrent();
+  if (hit === S.len) {
+    S.over = true;
+    showWin();
+  } else if (S.attempts >= MAX_ATTEMPTS) {
+    S.over = true;
+    showLose();
+  }
+}
+
+// ============================================================
+// RENDER
+// ============================================================
+function pegEl(colorIdx) {
+  const el = document.createElement('div');
+  el.className = 'peg';
+  el.textContent = COLORS[colorIdx];
+  return el;
+}
+
+function renderPalette() {
+  const pal = document.getElementById('palette');
+  pal.innerHTML = '';
+  for (let i=0;i<S.colorCount;i++) {
+    const sw = document.createElement('div');
+    sw.className = 'pal-swatch';
+    sw.textContent = COLORS[i];
+    sw.addEventListener('click', () => {
+      if (S.over) return;
+      S.current[S.selected] = i;
+      // advance to the next empty slot after this one, if any
+      let next = -1;
+      for (let k=1;k<=S.len;k++) {
+        const idx = (S.selected + k) % S.len;
+        if (S.current[idx] === null) { next = idx; break; }
+      }
+      if (next !== -1) S.selected = next;
+      renderCurrent();
+    });
+    pal.appendChild(sw);
+  }
+}
+
+function renderCurrent() {
+  const wrap = document.getElementById('currentSlots');
+  wrap.innerHTML = '';
+  for (let i=0;i<S.len;i++) {
+    const slot = document.createElement('div');
+    slot.className = 'cur-slot' + (i === S.selected ? ' next' : '');
+    if (S.current[i] !== null) {
+      slot.appendChild(pegEl(S.current[i]));
+    }
+    slot.addEventListener('click', () => {
+      if (S.over) return;
+      if (S.selected === i && S.current[i] !== null) {
+        // clicking the already-selected, filled slot again clears it
+        S.current[i] = null;
+      } else {
+        S.selected = i;
+      }
+      renderCurrent();
+    });
+    wrap.appendChild(slot);
+  }
+  document.getElementById('submitBtn').disabled = S.current.includes(null);
+}
+
+function renderSecretRow() {
+  const wrap = document.getElementById('secretRow');
+  wrap.innerHTML = '';
+  for (let i=0;i<S.len;i++) {
+    const slot = document.createElement('div');
+    slot.className = 'secret-slot';
+    const hidden = document.createElement('div');
+    hidden.className = 'secret-peg-hidden';
+    hidden.textContent = '？';
+    slot.appendChild(hidden);
+    wrap.appendChild(slot);
+  }
+}
+
+// Flips each secret slot open in sequence, swapping the hidden '?'
+// for the real peg at the midpoint of the flip (when it's edge-on).
+function revealSecretRow(callback) {
+  const slots = document.getElementById('secretRow').children;
+  const flipDuration = 600;
+  const stagger = 150;
+  for (let i=0;i<S.len;i++) {
+    const slot = slots[i];
+    setTimeout(() => {
+      slot.classList.add('flip');
+      setTimeout(() => {
+        slot.innerHTML = '';
+        slot.appendChild(pegEl(S.secret[i]));
+      }, flipDuration / 2);
+    }, i * stagger);
+  }
+  const totalTime = (S.len - 1) * stagger + flipDuration;
+  if (callback) setTimeout(callback, totalTime);
+}
+
+function addHistoryRow(guess, hit, blow) {
+  const hist = document.getElementById('history');
+  const row = document.createElement('div');
+  row.className = 'hrow';
+
+  const idx = document.createElement('div');
+  idx.className = 'hrow-idx';
+  idx.textContent = S.attempts;
+  row.appendChild(idx);
+
+  const pegs = document.createElement('div');
+  pegs.className = 'hrow-pegs';
+  guess.forEach(c => {
+    const slot = document.createElement('div');
+    slot.className = 'peg-slot';
+    slot.appendChild(pegEl(c));
+    pegs.appendChild(slot);
+  });
+  row.appendChild(pegs);
+
+  const fb = document.createElement('div');
+  fb.className = 'hrow-feedback';
+
+  const hitCount = document.createElement('div');
+  hitCount.className = 'fb-count';
+  hitCount.innerHTML = `<span class="fb-dot hit"></span>${hit}`;
+  fb.appendChild(hitCount);
+
+  const blowCount = document.createElement('div');
+  blowCount.className = 'fb-count';
+  blowCount.innerHTML = `<span class="fb-dot blow"></span>${blow}`;
+  fb.appendChild(blowCount);
+
+  row.appendChild(fb);
+
+  hist.appendChild(row);
+}
+
+const VIEW_PAUSE = 900; // time to actually look at the revealed answer before the overlay covers it
+
+function showWin() {
+  revealSecretRow(() => {
+    setTimeout(() => {
+      document.getElementById('winSub').textContent = `${S.attempts} 回目で正解`;
+      document.getElementById('winOverlay').classList.add('show');
+    }, VIEW_PAUSE);
+  });
+}
+
+function showLose() {
+  revealSecretRow(() => {
+    setTimeout(() => {
+      document.getElementById('loseOverlay').classList.add('show');
+    }, VIEW_PAUSE);
+  });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+newGame();
+</script>
+</body>
+</html>
