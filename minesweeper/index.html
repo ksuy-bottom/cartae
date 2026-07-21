@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
- <script async src="https://www.googletagmanager.com/gtag/js?id=G-WGNBZYGKKG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WGNBZYGKKG');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MINE SWEEPER</title>
@@ -23,7 +16,7 @@
     --danger: #ff3c5a;
     --safe: #00ff9d;
     --warn: #ffb800;
-    --dim: #4a6070;
+    --dim: #8aa4bc;
     --cell-bg: #1e3045;
     --cell-hover: #2a4060;
     --cell-open: #0d1a22;
@@ -48,7 +41,7 @@
   h1 {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-size: clamp(1.7rem, 5vw, 2.7rem);
     letter-spacing: 0.3em;
     color: var(--accent);
     text-shadow: 0 0 20px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.2);
@@ -56,8 +49,8 @@
   }
 
   .subtitle {
-    font-size: 0.7rem;
-    letter-spacing: 0.4em;
+    font-size: 0.95rem;
+    letter-spacing: 0.32em;
     color: var(--dim);
     margin-bottom: 24px;
   }
@@ -67,7 +60,7 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 460px;
+    max-width: 500px;
     background: var(--panel);
     border: 1px solid var(--border);
     border-bottom: none;
@@ -83,18 +76,18 @@
   }
 
   .hud-label {
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
     color: var(--dim);
   }
 
   .hud-value {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.4rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--accent);
     text-shadow: 0 0 10px rgba(0,212,255,0.4);
-    min-width: 60px;
+    min-width: 80px;
     text-align: center;
   }
 
@@ -106,9 +99,9 @@
     border: 1px solid var(--accent);
     color: var(--accent);
     font-family: 'Share Tech Mono', monospace;
-    font-size: 1.4rem;
-    width: 44px;
-    height: 44px;
+    font-size: 1.6rem;
+    width: 48px;
+    height: 48px;
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.15s;
@@ -122,33 +115,30 @@
     box-shadow: 0 0 12px rgba(0,212,255,0.3);
   }
 
+  .hud-time-box { position: relative; }
+
   .difficulty-bar {
     display: flex;
-    gap: 0;
-    width: 100%;
-    max-width: 460px;
-    border: 1px solid var(--border);
-    border-top: none;
-    border-bottom: none;
+    gap: 3px;
+    margin-bottom: 4px;
   }
 
   .diff-btn {
-    flex: 1;
-    padding: 6px;
+    padding: 5px 11px;
     background: var(--panel);
-    border: none;
-    border-right: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: 3px;
     color: var(--dim);
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
     cursor: pointer;
     transition: all 0.15s;
+    white-space: nowrap;
   }
 
-  .diff-btn:last-child { border-right: none; }
   .diff-btn:hover { background: var(--cell-hover); color: var(--text); }
-  .diff-btn.active { background: rgba(0,212,255,0.08); color: var(--accent); }
+  .diff-btn.active { background: rgba(0,212,255,0.12); color: var(--accent); border-color: var(--accent); }
 
   .board-wrap {
     background: var(--panel);
@@ -166,8 +156,8 @@
   }
 
   .cell {
-    width: 30px;
-    height: 30px;
+    width: 38px;
+    height: 38px;
     background: var(--cell-bg);
     border: 1px solid #2e5070;
     border-radius: 3px;
@@ -175,7 +165,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 0.75rem;
+    font-size: 1.15rem;
     font-weight: bold;
     transition: background 0.1s, transform 0.05s;
     user-select: none;
@@ -198,18 +188,23 @@
 
   .cell.flagged::after {
     content: '🚩';
-    font-size: 0.8rem;
+    font-size: 1.3rem;
   }
 
   .cell.mine-show::after {
     content: '💣';
-    font-size: 0.85rem;
+    font-size: 1.35rem;
   }
 
   .cell.exploded {
     background: rgba(255,60,90,0.25);
     border-color: var(--danger);
     animation: explode 0.3s ease;
+  }
+
+  .cell.exploded::after {
+    content: '💣';
+    font-size: 1.35rem;
   }
 
   @keyframes explode {
@@ -239,7 +234,7 @@
   #message {
     margin-top: 16px;
     font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
+    font-size: 1.3rem;
     letter-spacing: 0.2em;
     height: 28px;
     text-align: center;
@@ -289,15 +284,6 @@
   }
   #overlay-msg.show { transform: translate(-50%,-50%) scale(1); opacity: 1; }
   #overlay-msg.hide { transform: translate(-50%,-50%) scale(1.2); opacity: 0; }
-
-  .instructions {
-    margin-top: 20px;
-    font-size: 0.6rem;
-    color: var(--dim);
-    letter-spacing: 0.15em;
-    text-align: center;
-    line-height: 1.8;
-  }
 </style>
 </head>
 <body>
@@ -311,16 +297,15 @@
     <span class="hud-value danger" id="mine-count">--</span>
   </div>
   <button id="reset-btn" title="リセット">⟳</button>
-  <div class="hud-box">
+  <div class="hud-box hud-time-box">
+    <div class="difficulty-bar">
+      <button class="diff-btn active" data-rows="9" data-cols="9" data-mines="10">EASY</button>
+      <button class="diff-btn" data-rows="16" data-cols="16" data-mines="40">NORMAL</button>
+      <button class="diff-btn" data-rows="16" data-cols="30" data-mines="99">HARD</button>
+    </div>
     <span class="hud-label">TIME</span>
     <span class="hud-value" id="timer">000</span>
   </div>
-</div>
-
-<div class="difficulty-bar">
-  <button class="diff-btn active" data-rows="9" data-cols="9" data-mines="10">EASY</button>
-  <button class="diff-btn" data-rows="16" data-cols="16" data-mines="40">NORMAL</button>
-  <button class="diff-btn" data-rows="16" data-cols="30" data-mines="99">HARD</button>
 </div>
 
 <div class="board-wrap">
@@ -330,10 +315,6 @@
 <div id="message"></div>
 <canvas id="particle-canvas"></canvas>
 <div id="overlay-msg">AREA SECURED</div>
-
-<div class="instructions">
-  左クリック: マスを開く　　右クリック: 旗を立てる / 外す
-</div>
 
 <script>
   let rows, cols, totalMines;
@@ -423,7 +404,7 @@
   }
 
   function renderBoard() {
-    boardEl.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, 38px)`;
     boardEl.innerHTML = '';
     for (let r = 0; r < rows; r++)
       for (let c = 0; c < cols; c++) {
