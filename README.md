@@ -19,6 +19,11 @@
 
 隠された野菜の並びを推理する、ヒット&ブロー風の論理推理ゲーム。
 
+### 県 PREFECTURE QUIZ
+
+都道府県のシルエットだけを見て、名前を漢字で当てる形当てクイズ。
+10問・20問・47都道府県、静止・反転・ランダム回転の3ステージから遊べる。
+
 ## ▶ プレイ
 
 **[► ここでプレイ](https://laotour-log.github.io/my-games/)**
@@ -35,6 +40,8 @@ my-games/
 │   └── index.html          # SUDOKUゲーム本体
 ├── imo_and_broccoli/
 │   └── index.html          # IMO & BROCCOLIゲーム本体
+├── prefecture_quiz/
+│   └── index.html          # PREFECTURE QUIZゲーム本体
 ├── README.md
 └── LICENSE
 ```
