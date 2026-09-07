@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>世界の国 シルエットクイズ</title>
-<meta name="description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界200ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
+<meta name="description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界191ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="世界の国 シルエットクイズ">
-<meta property="og:description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界200ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
+<meta property="og:description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界191ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
 <meta property="og:url" content="https://laotour-log.github.io/my-games/country_quiz/">
 <meta property="og:image" content="https://laotour-log.github.io/my-games/country_quiz/ogp_image.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -413,7 +413,7 @@
       </button>
       <button class="mode-card" id="btn-length-full">
         <span class="body">
-          <span class="title">世界一周（200ヶ国・地域）</span>
+          <span class="title">世界一周（191ヶ国・地域）</span>
           <span class="desc">世界すべての国・地域が重複なしで出題される。</span>
         </span>
       </button>
@@ -425,6 +425,10 @@
           <span class="desc">地域を選んで、形と名前を一緒に1件ずつ順番に覚えていく。</span>
         </span>
       </button>
+    </div>
+    <div class="hint-note">
+      キリバス・ツバル・ミクロネシア連邦・マーシャル諸島・セーシェル・モルディブ・パラオ・モーリシャス・トンガの9ヶ国は、
+      島が小さすぎてシルエットがほぼ点になってしまうため、クイズの出題対象からは外しています（「覚える」では見られます）。
     </div>
   </section>
 
@@ -578,10 +582,9 @@
 
   /* ---------------- shared shape rendering ---------------- */
 
-  // 塗りつぶし面積が枠に対して0.4%未満の「点在した島国」9ヶ国は、
-  // 島（サブパス）ごとに自分の重心を中心に個別拡大して、全体の散らばり方は変えずに
-  // 1つ1つの島を見える大きさまで底上げする（地図の縮尺表示と同じ考え方）。
-  var SCATTERED_ISLAND_CODES = {
+  // 塗りつぶし面積が枠に対して0.4%未満で、拡大しても点にしか見えない「点在した島国」は
+  // 出題対象から除外する（結果画面の全体地図には引き続き表示される）。
+  var EXCLUDED_COUNTRY_CODES = {
     'KIR': true, // キリバス
     'TUV': true, // ツバル
     'FSM': true, // ミクロネシア連邦
@@ -592,63 +595,17 @@
     'MUS': true, // モーリシャス
     'TON': true  // トンガ
   };
-  var ISLAND_MIN_AREA = 0.02; // viewBox単位での最低面積の目安
-  var ISLAND_MAX_SCALE = 20;  // 極端に小さい島でも歪みすぎないための上限
 
-  function renderSilhouette(container, item, expandIslands) {
+  function renderSilhouette(container, item) {
     container.textContent = '';
     if (item.code) container.setAttribute('data-code', item.code);
-    var d = (expandIslands && SCATTERED_ISLAND_CODES[item.code]) ? expandTinyIslands(item.d) : item.d;
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', item.vb);
     var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', d);
+    path.setAttribute('d', item.d);
     path.setAttribute('fill-rule', 'evenodd');
     svg.appendChild(path);
     container.appendChild(svg);
-  }
-
-  function polygonAreaAndCentroid(pts) {
-    var a = 0, cx = 0, cy = 0;
-    for (var i = 0; i < pts.length; i++) {
-      var p0 = pts[i], p1 = pts[(i + 1) % pts.length];
-      var cross = p0[0] * p1[1] - p1[0] * p0[1];
-      a += cross;
-      cx += (p0[0] + p1[0]) * cross;
-      cy += (p0[1] + p1[1]) * cross;
-    }
-    a *= 0.5;
-    if (Math.abs(a) < 1e-9) {
-      var sx = 0, sy = 0;
-      for (var j = 0; j < pts.length; j++) { sx += pts[j][0]; sy += pts[j][1]; }
-      return { area: 0, cx: sx / pts.length, cy: sy / pts.length };
-    }
-    return { area: Math.abs(a), cx: cx / (6 * a), cy: cy / (6 * a) };
-  }
-
-  function expandTinyIslands(d) {
-    var subpaths = d.trim().split(/(?=M )/).filter(function (s) { return s.trim(); });
-    var out = [];
-    for (var s = 0; s < subpaths.length; s++) {
-      var nums = subpaths[s].replace(/[MLZ]/g, '').trim().split(/\s+/).map(Number);
-      var pts = [];
-      for (var i = 0; i + 1 < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]);
-      if (pts.length < 3) { out.push(subpaths[s]); continue; }
-      var info = polygonAreaAndCentroid(pts);
-      var scale = 1;
-      if (info.area > 0 && info.area < ISLAND_MIN_AREA) {
-        scale = Math.min(Math.sqrt(ISLAND_MIN_AREA / info.area), ISLAND_MAX_SCALE);
-      }
-      if (scale === 1) { out.push(subpaths[s]); continue; }
-      var newPts = pts.map(function (p) {
-        return [info.cx + (p[0] - info.cx) * scale, info.cy + (p[1] - info.cy) * scale];
-      });
-      var tokens = ['M ' + newPts[0][0].toFixed(4) + ' ' + newPts[0][1].toFixed(4)];
-      for (var k = 1; k < newPts.length; k++) tokens.push('L ' + newPts[k][0].toFixed(4) + ' ' + newPts[k][1].toFixed(4));
-      tokens.push('Z');
-      out.push(tokens.join(' '));
-    }
-    return out.join(' ');
   }
 
   function shuffledOrder(n) {
@@ -697,7 +654,9 @@
 
   function allIndexes() {
     var arr = [];
-    for (var i = 0; i < COUNTRY_DATA.length; i++) arr.push(i);
+    for (var i = 0; i < COUNTRY_DATA.length; i++) {
+      if (!EXCLUDED_COUNTRY_CODES[COUNTRY_DATA[i].code]) arr.push(i);
+    }
     return arr;
   }
 
@@ -737,10 +696,14 @@
   var regionFlow = 'quiz'; // 'quiz' | 'learn' -- which flow opened the region screen
 
   var elRegionGrid = document.getElementById('region-grid');
+  var regionCards = [];
   REGION_ORDER.forEach(function (region) {
-    var idxs = [];
+    var allIdxs = [];
+    var quizIdxs = [];
     for (var i = 0; i < COUNTRY_DATA.length; i++) {
-      if (COUNTRY_DATA[i].continent === region) idxs.push(i);
+      if (COUNTRY_DATA[i].continent !== region) continue;
+      allIdxs.push(i);
+      if (!EXCLUDED_COUNTRY_CODES[COUNTRY_DATA[i].code]) quizIdxs.push(i);
     }
     var card = document.createElement('button');
     card.className = 'region-card';
@@ -749,27 +712,36 @@
     title.textContent = REGION_LABEL[region];
     var desc = document.createElement('span');
     desc.className = 'desc';
-    desc.textContent = idxs.length + 'ヶ国・地域';
+    desc.textContent = quizIdxs.length + 'ヶ国・地域';
     card.appendChild(title);
     card.appendChild(desc);
     card.addEventListener('click', function () {
       if (regionFlow === 'learn') {
-        startLearn(idxs);
+        startLearn(allIdxs);
         return;
       }
-      pendingPool = idxs;
-      pendingCount = idxs.length;
+      pendingPool = quizIdxs;
+      pendingCount = quizIdxs.length;
       pendingMapKey = region;
       pendingIsCompletion = true;
-      pendingLabel = REGION_LABEL[region] + '（' + idxs.length + 'ヶ国）';
+      pendingLabel = REGION_LABEL[region] + '（' + quizIdxs.length + 'ヶ国）';
       elStageLengthLabel.textContent = pendingLabel;
       showScreen(screenStage);
     });
     elRegionGrid.appendChild(card);
+    regionCards.push({ desc: desc, quizCount: quizIdxs.length, allCount: allIdxs.length });
   });
+
+  function updateRegionCardCounts() {
+    regionCards.forEach(function (rc) {
+      var n = regionFlow === 'learn' ? rc.allCount : rc.quizCount;
+      rc.desc.textContent = n + 'ヶ国・地域';
+    });
+  }
 
   document.getElementById('btn-open-region').addEventListener('click', function () {
     regionFlow = 'quiz';
+    updateRegionCardCounts();
     showScreen(screenRegion);
   });
   document.getElementById('btn-region-back').addEventListener('click', function () {
@@ -833,7 +805,7 @@
   function loadQuizQuestion() {
     var item = COUNTRY_DATA[quiz.pool[quiz.order[quiz.index]]];
     quiz.current = item;
-    renderSilhouette(elSilhouette, item, true);
+    renderSilhouette(elSilhouette, item);
     applyMotion(elSilhouette.querySelector('svg'), quiz.mode);
     elAnswerInput.value = '';
     elAnswerInput.classList.remove('wrong');
@@ -1023,6 +995,7 @@
 
   document.getElementById('btn-mode-learn').addEventListener('click', function () {
     regionFlow = 'learn';
+    updateRegionCardCounts();
     showScreen(screenRegion);
   });
   document.getElementById('btn-learn-prev').addEventListener('click', function () {
@@ -1090,7 +1063,7 @@
     var previewKeyMatch = location.search.match(/map=(\w+)/);
     var previewKey = previewKeyMatch ? previewKeyMatch[1].replace(/_/g, ' ') : 'World';
     var previewIsGrand = location.search.indexOf('grand=1') !== -1;
-    document.getElementById('result-title').textContent = previewIsGrand ? (previewKey === 'World' ? '世界200ヶ国 全制覇！' : (REGION_LABEL[previewKey] || previewKey) + '全制覇！') : '10問クリア！';
+    document.getElementById('result-title').textContent = previewIsGrand ? (previewKey === 'World' ? '世界191ヶ国 全制覇！' : (REGION_LABEL[previewKey] || previewKey) + '全制覇！') : '10問クリア！';
     document.getElementById('res-time').textContent = '02:15.3';
     document.getElementById('res-miss').textContent = '4';
     document.getElementById('res-avg').textContent = '2.9秒';
