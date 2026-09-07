@@ -276,7 +276,7 @@
     justify-content: center;
     overflow: visible;
   }
-  .silhouette-box svg { width: 78%; height: 78%; transform-origin: 50% 50%; }
+  .silhouette-box svg { width: 78%; height: 78%; overflow: visible; transform-origin: 50% 50%; }
   .silhouette-box path { fill: var(--accent); transition: fill 0.15s ease; }
   .stage.shake .silhouette-box path { fill: var(--miss); }
 
@@ -578,16 +578,41 @@
 
   /* ---------------- shared shape rendering ---------------- */
 
-  function renderSilhouette(container, item) {
+  // 縦横比が極端でほぼ線状になってしまう国だけ、形は歪めずに枠内で少し大きく見せる。
+  // はみ出しは .silhouette-box 側の overflow: visible で許容するため、上限を設けて過度な重なりを防ぐ。
+  // 塗りつぶし面積が枠に対して0.4%未満の「点在した島国」9ヶ国が対象。
+  var THIN_COUNTRY_ZOOM = {
+    'KIR': 1.4, // キリバス
+    'TUV': 1.4, // ツバル
+    'FSM': 1.4, // ミクロネシア連邦
+    'MHL': 1.4, // マーシャル諸島
+    'SYC': 1.4, // セーシェル
+    'MDV': 1.4, // モルディブ
+    'PLW': 1.4, // パラオ
+    'MUS': 1.4, // モーリシャス
+    'TON': 1.4  // トンガ
+  };
+
+  function renderSilhouette(container, item, zoomThin) {
     container.textContent = '';
     if (item.code) container.setAttribute('data-code', item.code);
+    var factor = zoomThin && THIN_COUNTRY_ZOOM[item.code];
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', item.vb);
+    svg.setAttribute('viewBox', factor ? zoomedViewBox(item.vb, factor) : item.vb);
     var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', item.d);
     path.setAttribute('fill-rule', 'evenodd');
     svg.appendChild(path);
     container.appendChild(svg);
+  }
+
+  function zoomedViewBox(vb, factor) {
+    var parts = vb.trim().split(/\s+/).map(Number);
+    var minX = parts[0], minY = parts[1], w = parts[2], h = parts[3];
+    var newW = w / factor, newH = h / factor;
+    var newMinX = minX + (w - newW) / 2;
+    var newMinY = minY + (h - newH) / 2;
+    return newMinX + ' ' + newMinY + ' ' + newW + ' ' + newH;
   }
 
   function shuffledOrder(n) {
@@ -772,7 +797,7 @@
   function loadQuizQuestion() {
     var item = COUNTRY_DATA[quiz.pool[quiz.order[quiz.index]]];
     quiz.current = item;
-    renderSilhouette(elSilhouette, item);
+    renderSilhouette(elSilhouette, item, true);
     applyMotion(elSilhouette.querySelector('svg'), quiz.mode);
     elAnswerInput.value = '';
     elAnswerInput.classList.remove('wrong');
