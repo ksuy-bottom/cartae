@@ -808,21 +808,36 @@
     elLearnProgress.textContent = (learnIndex + 1) + ' / ' + PREF_DATA.length;
   }
 
+  function learnPrev() {
+    learnIndex = (learnIndex - 1 + PREF_DATA.length) % PREF_DATA.length;
+    renderLearn();
+  }
+  function learnNext() {
+    learnIndex = (learnIndex + 1) % PREF_DATA.length;
+    renderLearn();
+  }
+
   document.getElementById('btn-mode-learn').addEventListener('click', function () {
     learnIndex = 0;
     showScreen(screenLearn);
     renderLearn();
   });
-  document.getElementById('btn-learn-prev').addEventListener('click', function () {
-    learnIndex = (learnIndex - 1 + PREF_DATA.length) % PREF_DATA.length;
-    renderLearn();
-  });
-  document.getElementById('btn-learn-next').addEventListener('click', function () {
-    learnIndex = (learnIndex + 1) % PREF_DATA.length;
-    renderLearn();
-  });
+  document.getElementById('btn-learn-prev').addEventListener('click', learnPrev);
+  document.getElementById('btn-learn-next').addEventListener('click', learnNext);
   document.getElementById('btn-learn-back').addEventListener('click', function () {
     showScreen(screenLength);
+  });
+
+  // 覚えるページを表示している間は、矢印キーでも前へ／次へを操作できるようにする
+  document.addEventListener('keydown', function (e) {
+    if (screenLearn.hidden) return;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      learnPrev();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      learnNext();
+    }
   });
 
   /* ---------------- theme (light / dark) ---------------- */
