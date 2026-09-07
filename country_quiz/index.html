@@ -54,6 +54,7 @@
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -84,6 +85,7 @@
     align-items: center;
     gap: 20px;
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .top-nav {
@@ -143,6 +145,7 @@
   .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,224,138,0.25); }
   .btn:active { transform: translateY(0); }
   .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+  .btn-pass { padding: 10px 24px; font-size: 0.85rem; }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .btn-quit {
@@ -484,7 +487,8 @@
       <input id="answer-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="国名を英語で入力してEnter">
       <div class="feedback-msg" id="feedback-msg">&nbsp;</div>
     </form>
-    <div class="hint-note">英語のスペルで入力してください（例: Japan / USA / United States など、よくある表記はどちらでも可）。不正解でも正解するまで同じ問題が続きます。</div>
+    <button class="btn secondary btn-pass" id="btn-pass" type="button">わからない（パス）</button>
+    <div class="hint-note">英語のスペルで入力してください（例: Japan / USA / United States など、よくある表記はどちらでも可）。不正解でも正解するまで同じ問題が続きます。わからないときはパスもできます（誤答2回分としてカウント）。</div>
   </section>
 
   <!-- LEARN -->
@@ -761,7 +765,7 @@
       svg.style.transform = 'scaleX(-1)';
     } else if (mode === 'randmirror') {
       var mirrored = Math.random() < 0.5;
-      svg.style.animation = (mirrored ? 'spin-mirror' : 'spin') + ' 1.2s linear infinite';
+      svg.style.animation = (mirrored ? 'spin-mirror' : 'spin') + ' 3.5s linear infinite';
     }
   }
 
@@ -809,6 +813,17 @@
   });
   elStage.addEventListener('animationend', function (e) {
     if (e.animationName !== 'flashgreen') elStage.classList.remove('shake');
+  });
+
+  document.getElementById('btn-pass').addEventListener('click', function () {
+    if (!quiz) return;
+    quiz.missCount += 2;
+    elHudMiss.textContent = quiz.missCount;
+    elFeedback.textContent = '正解は ' + quiz.current.name_ja + ' (' + quiz.current.name + ') でした';
+    elFeedback.className = 'feedback-msg wrong';
+    elAnswerInput.value = '';
+    elAnswerInput.classList.remove('wrong');
+    advanceQuiz();
   });
 
   function advanceQuiz() {
