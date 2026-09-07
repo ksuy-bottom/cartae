@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>世界の国 シルエットクイズ</title>
+<meta name="description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界200ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="世界の国 シルエットクイズ">
+<meta property="og:description" content="形だけを見て国名を英語で当てよう。10問・20問・地域別・世界200ヶ国、静止・反転・ランダム回転の3ステージから遊べる形当てクイズ。">
+<meta property="og:url" content="https://laotour-log.github.io/my-games/country_quiz/">
+<meta property="og:image" content="https://laotour-log.github.io/my-games/country_quiz/ogp_image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  [hidden] { display: none !important; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f1e6;
+    --panel: #ffffff;
+    --accent: #4a7c59;
+    --accent2: #b8862c;
+    --heading: #2f2a20;
+    --btn-text: #fbf8ef;
+    --input-bg: #ffffff;
+    --text: #2f2a20;
+    --sub: #7a6f5c;
+    --miss: #b3452c;
+    --border: rgba(47,42,32,0.15);
+    --grid-line: rgba(74,124,89,0.06);
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #182420;
+    --panel: #22322a;
+    --accent: #4ee08a;
+    --accent2: #e0b84e;
+    --heading: #f2fff8;
+    --btn-text: #06120a;
+    --input-bg: #1b2924;
+    --text: #e7f5ec;
+    --sub: #93b3a3;
+    --miss: #ff5d6c;
+    --border: rgba(78,224,138,0.3);
+    --grid-line: rgba(78,224,138,0.05);
+  }
+
+  html, body { width: 100%; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 36px 36px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 640px;
+    padding: 28px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    min-height: 100vh;
+  }
+
+  .top-nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--sub);
+  }
+  .top-nav a { color: var(--sub); text-decoration: none; padding: 10px 4px; }
+  .top-nav a:hover { color: var(--accent); }
+
+  .theme-toggle {
+    min-height: 44px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--sub);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+  h1 {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
+    letter-spacing: 0.08em;
+    text-align: center;
+    color: var(--heading);
+  }
+  h1 span { color: var(--accent); }
+
+  .lead { font-size: 0.85rem; color: var(--sub); text-align: center; line-height: 1.8; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 32px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    color: var(--btn-text);
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,224,138,0.25); }
+  .btn:active { transform: translateY(0); }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-quit {
+    align-self: flex-start;
+    min-height: 44px;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    color: var(--sub);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+  .btn-quit:hover { color: var(--accent); }
+
+  /* ---- screens ---- */
+  .screen { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+  /* mode select */
+  #screen-length { padding-top: 4vh; gap: 22px; }
+  .mode-grid { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(78,224,138,0.06);
+  }
+  .mode-card {
+    width: 100%;
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .mode-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .mode-card.learn-card { border-color: var(--accent2); }
+  .mode-card.learn-card:hover { border-color: var(--accent2); }
+  .mode-card.learn-card .title { color: var(--accent2); }
+  .mode-card .body { display: flex; flex-direction: column; gap: 3px; }
+  .mode-card .title { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; }
+  .mode-card .desc { font-size: 0.78rem; color: var(--sub); line-height: 1.6; }
+
+  .region-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .region-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 14px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .region-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .region-card .title { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.05em; }
+  .region-card .desc { font-size: 0.72rem; color: var(--sub); }
+
+  /* play / learn shared */
+  .hud {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .hud-item { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px; }
+  .hud-label { font-size: 0.6rem; color: var(--sub); letter-spacing: 0.15em; }
+  .hud-value { font-size: 1.1rem; color: var(--text); }
+  .hud-value.miss { color: var(--miss); }
+
+  .stage {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+  }
+  .stage.shake { animation: shake 0.28s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .stage.correct-flash { animation: flashgreen 0.4s ease; }
+  @keyframes flashgreen {
+    0% { box-shadow: 0 0 0 0 rgba(78,224,138,0); }
+    40% { box-shadow: 0 0 0 6px rgba(78,224,138,0.25); }
+    100% { box-shadow: 0 0 0 0 rgba(78,224,138,0); }
+  }
+
+  .silhouette-box {
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+  }
+  .silhouette-box svg { width: 78%; height: 78%; transform-origin: 50% 50%; }
+  .silhouette-box path { fill: var(--accent); transition: fill 0.15s ease; }
+  .stage.shake .silhouette-box path { fill: var(--miss); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin-mirror {
+    from { transform: scaleX(-1) rotate(0deg); }
+    to { transform: scaleX(-1) rotate(360deg); }
+  }
+
+  .answer-form { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  #answer-input {
+    width: 100%;
+    max-width: 320px;
+    min-height: 48px;
+    padding: 10px 16px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.03em;
+    text-align: center;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+  }
+  #answer-input:focus { border-color: var(--accent); }
+  #answer-input.wrong { border-color: var(--miss); }
+
+  .feedback-msg {
+    font-size: 0.8rem;
+    color: var(--sub);
+    min-height: 1.4em;
+    text-align: center;
+  }
+  .feedback-msg.wrong { color: var(--miss); }
+  .feedback-msg.correct { color: var(--accent); }
+
+  .hint-note { font-size: 0.72rem; color: var(--sub); text-align: center; line-height: 1.7; }
+
+  /* learn mode */
+  .learn-name { font-size: 1.5rem; font-weight: 900; letter-spacing: 0.03em; color: var(--heading); text-align: center; }
+  .learn-kana { font-size: 0.95rem; color: var(--accent); letter-spacing: 0.05em; }
+  .learn-flag {
+    width: 64px;
+    height: 44px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  .learn-flag svg { width: 100%; height: 100%; display: block; }
+  .learn-nav { width: 100%; display: flex; justify-content: center; align-items: center; gap: 16px; }
+  .learn-progress { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--sub); min-width: 72px; text-align: center; }
+
+  /* result */
+  .result-title { font-size: 1.3rem; color: var(--accent); letter-spacing: 0.08em; text-align: center; }
+
+  .full-map-box {
+    width: 100%;
+    max-width: 340px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: mapPop 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+  }
+  .full-map-box svg { width: 92%; height: 92%; filter: drop-shadow(0 0 0 transparent); transition: filter 0.4s ease; }
+  .full-map-box path { fill: var(--accent); }
+
+  .full-map-box.grand path { fill: var(--accent2); }
+  .full-map-box.grand svg {
+    animation: goldGlow 2.2s ease-in-out 0.6s infinite;
+  }
+  @keyframes goldGlow {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(184,134,44,0.4)); }
+    50% { filter: drop-shadow(0 0 18px rgba(184,134,44,0.75)); }
+  }
+
+  @keyframes mapPop {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .result-grid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .result-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+  .result-card .num { font-family: 'Share Tech Mono', monospace; font-size: 1.5rem; color: var(--text); }
+  .result-card .lbl { font-size: 0.68rem; color: var(--sub); letter-spacing: 0.15em; margin-top: 4px; }
+
+  .share-row {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .share-row .btn { padding: 10px 18px; font-size: 0.82rem; text-decoration: none; }
+  .share-note { font-size: 0.78rem; color: var(--accent); min-height: 1.4em; text-align: center; }
+
+  .footer { margin-top: auto; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--sub); opacity: 0.7; text-align: center; }
+  .footer a { color: var(--sub); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav class="top-nav">
+    <a href="../index.html">← GAME ROOM</a>
+    <span>COUNTRY QUIZ</span>
+    <button class="theme-toggle" id="theme-toggle" aria-label="配色を切り替え">ダーク</button>
+  </nav>
+
+  <!-- LENGTH SELECT (top level) -->
+  <section class="screen" id="screen-length">
+    <h1>世界の<span>国</span>シルエットクイズ</h1>
+    <p class="lead">形だけを見て、国名を英語のスペルで当てよう。</p>
+    <div class="mode-grid">
+      <button class="mode-card" id="btn-length-10">
+        <span class="body">
+          <span class="title">サクッと10問</span>
+          <span class="desc">世界中からランダムで10問だけ。一番サクッと遊べる。</span>
+        </span>
+      </button>
+      <button class="mode-card" id="btn-length-20">
+        <span class="body">
+          <span class="title">サクッと20問</span>
+          <span class="desc">世界中からランダムで20問だけ。</span>
+        </span>
+      </button>
+      <button class="mode-card" id="btn-open-region">
+        <span class="body">
+          <span class="title">地域から選ぶ</span>
+          <span class="desc">アジア・ヨーロッパなど、6地域から選んでその地域を全問制覇。</span>
+        </span>
+      </button>
+      <button class="mode-card" id="btn-length-full">
+        <span class="body">
+          <span class="title">世界一周（200ヶ国・地域）</span>
+          <span class="desc">世界すべての国・地域が重複なしで出題される。</span>
+        </span>
+      </button>
+    </div>
+    <div class="mode-grid">
+      <button class="mode-card learn-card" id="btn-mode-learn">
+        <span class="body">
+          <span class="title">学ぶ</span>
+          <span class="desc">地域を選んで、形と名前を一緒に1件ずつ順番に覚えていく。</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- REGION SELECT -->
+  <section class="screen" id="screen-region" hidden>
+    <button class="btn-quit" id="btn-region-back">← タイトルへ戻る</button>
+    <div class="badge">地域を選択</div>
+    <div class="region-grid" id="region-grid"></div>
+  </section>
+
+  <!-- STAGE SELECT -->
+  <section class="screen" id="screen-stage" hidden>
+    <button class="btn-quit" id="btn-stage-back">← タイトルへ戻る</button>
+    <div class="badge" id="stage-length-label">クイック（20問）</div>
+    <div class="mode-grid">
+      <button class="mode-card" id="btn-mode-easy">
+        <span class="body">
+          <span class="title">STAGE 1</span>
+          <span class="desc">形が静止したまま出題される。</span>
+        </span>
+      </button>
+      <button class="mode-card" id="btn-mode-mirror">
+        <span class="body">
+          <span class="title">STAGE 2</span>
+          <span class="desc">形が左右反転して出題される。</span>
+        </span>
+      </button>
+      <button class="mode-card" id="btn-mode-randmirror">
+        <span class="body">
+          <span class="title">STAGE 3</span>
+          <span class="desc">形が回転しながら出題される。反転するかは問題ごとにランダム。</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="screen" id="screen-quiz" hidden>
+    <button class="btn-quit" id="btn-quit-quiz">← タイトルへ戻る</button>
+    <div class="hud">
+      <div class="hud-item">
+        <div class="hud-label">TIME</div>
+        <div class="hud-value" id="hud-time">00:00.0</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">進行</div>
+        <div class="hud-value" id="hud-progress">0 / 10</div>
+      </div>
+      <div class="hud-item">
+        <div class="hud-label">MISS</div>
+        <div class="hud-value miss" id="hud-miss">0</div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="silhouette-box" id="silhouette-box"></div>
+    </div>
+
+    <form class="answer-form" id="answer-form">
+      <input id="answer-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="国名を英語で入力してEnter">
+      <div class="feedback-msg" id="feedback-msg">&nbsp;</div>
+    </form>
+    <div class="hint-note">英語のスペルで入力してください（例: Japan / USA / United States など、よくある表記はどちらでも可）。不正解でも正解するまで同じ問題が続きます。</div>
+  </section>
+
+  <!-- LEARN -->
+  <section class="screen" id="screen-learn" hidden>
+    <div class="learn-progress" id="learn-progress">1 / 200</div>
+    <div class="stage" id="learn-stage">
+      <div class="silhouette-box" id="learn-silhouette-box"></div>
+      <div class="learn-flag" id="learn-flag"></div>
+      <div class="learn-name" id="learn-name"></div>
+      <div class="learn-kana" id="learn-kana"></div>
+    </div>
+    <div class="learn-nav">
+      <button class="btn secondary" id="btn-learn-prev">← 前へ</button>
+      <button class="btn secondary" id="btn-learn-next">次へ →</button>
+    </div>
+    <button class="btn secondary" id="btn-learn-back">← 地域選択へ戻る</button>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="screen-result" hidden>
+    <div class="result-title" id="result-title">10問クリア！</div>
+    <div class="result-grid">
+      <div class="result-card">
+        <div class="num" id="res-time">00:00.0</div>
+        <div class="lbl">クリアタイム</div>
+      </div>
+      <div class="result-card">
+        <div class="num" id="res-miss">0</div>
+        <div class="lbl">誤答回数</div>
+      </div>
+      <div class="result-card">
+        <div class="num" id="res-avg">0.0秒</div>
+        <div class="lbl">1問あたり平均</div>
+      </div>
+      <div class="result-card">
+        <div class="num" id="res-accuracy">100%</div>
+        <div class="lbl">正答率</div>
+      </div>
+    </div>
+    <div class="full-map-box" id="full-map-box"></div>
+
+    <div class="share-row">
+      <button class="btn secondary" id="btn-share-native" hidden>シェアする</button>
+      <button class="btn secondary" id="btn-share-copy">結果をコピー</button>
+      <a class="btn secondary" id="btn-share-x" href="#" target="_blank" rel="noopener">Xでシェア</a>
+    </div>
+    <div class="share-note" id="share-note">&nbsp;</div>
+
+    <button class="btn" id="btn-retry">もう一度プレイ</button>
+    <button class="btn secondary" id="btn-back">← タイトルへ戻る</button>
+  </section>
+
+  <div class="footer">地図データ出典: Natural Earth（<a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener">naturalearthdata.com</a> / Public Domain） / 国旗データ出典: <a href="https://github.com/hampusborgos/country-flags" target="_blank" rel="noopener">hampusborgos/country-flags</a>（Public Domain）</div>
+
+</div>
+
+<script src="countries_data.js"></script>
+<script src="world_full_data.js"></script>
+<script src="flags_data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- region metadata ---------------- */
+
+  var REGION_ORDER = ['Asia', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'];
+  var REGION_LABEL = {
+    'Asia': 'アジア',
+    'Europe': 'ヨーロッパ',
+    'Africa': 'アフリカ',
+    'North America': '北アメリカ',
+    'South America': '南アメリカ',
+    'Oceania': 'オセアニア'
+  };
+
+  /* ---------------- answer matching ---------------- */
+
+  function normalizeAnswer(s) {
+    s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    s = s.toLowerCase();
+    s = s.replace(/['".]/g, '');
+    s = s.replace(/[^a-z0-9]+/g, ' ');
+    s = s.trim();
+    s = s.replace(/^the /, '');
+    return s;
+  }
+
+  /* ---------------- shared shape rendering ---------------- */
+
+  function renderSilhouette(container, item) {
+    container.textContent = '';
+    if (item.code) container.setAttribute('data-code', item.code);
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', item.vb);
+    var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', item.d);
+    path.setAttribute('fill-rule', 'evenodd');
+    svg.appendChild(path);
+    container.appendChild(svg);
+  }
+
+  function shuffledOrder(n) {
+    var arr = [];
+    for (var i = 0; i < n; i++) arr.push(i);
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function formatTime(ms) {
+    var totalSec = ms / 1000;
+    var m = Math.floor(totalSec / 60);
+    var s = totalSec - m * 60;
+    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
+  }
+
+  /* ---------------- screens ---------------- */
+
+  var screenLength = document.getElementById('screen-length');
+  var screenRegion = document.getElementById('screen-region');
+  var screenStage = document.getElementById('screen-stage');
+  var screenQuiz = document.getElementById('screen-quiz');
+  var screenLearn = document.getElementById('screen-learn');
+  var screenResult = document.getElementById('screen-result');
+
+  function showScreen(el) {
+    [screenLength, screenRegion, screenStage, screenQuiz, screenLearn, screenResult].forEach(function (s) { s.hidden = (s !== el); });
+  }
+
+  /* ---------------- pool selection -> stage navigation ---------------- */
+
+  // pendingPool: array of indexes into COUNTRY_DATA to draw questions from.
+  // pendingCount: how many questions to ask (may be < pendingPool.length for quick modes).
+  // pendingMapKey: which WORLD_FULL entry to show on the result screen.
+  // pendingIsCompletion: true when finishing pendingPool = a genuine "clear the whole set" (region / world).
+  var pendingPool = [];
+  var pendingCount = 10;
+  var pendingMapKey = 'World';
+  var pendingIsCompletion = false;
+  var pendingLabel = '10問';
+
+  var elStageLengthLabel = document.getElementById('stage-length-label');
+
+  function allIndexes() {
+    var arr = [];
+    for (var i = 0; i < COUNTRY_DATA.length; i++) arr.push(i);
+    return arr;
+  }
+
+  document.getElementById('btn-length-10').addEventListener('click', function () {
+    pendingPool = allIndexes();
+    pendingCount = 10;
+    pendingMapKey = 'World';
+    pendingIsCompletion = false;
+    pendingLabel = '10問';
+    elStageLengthLabel.textContent = pendingLabel;
+    showScreen(screenStage);
+  });
+  document.getElementById('btn-length-20').addEventListener('click', function () {
+    pendingPool = allIndexes();
+    pendingCount = 20;
+    pendingMapKey = 'World';
+    pendingIsCompletion = false;
+    pendingLabel = '20問';
+    elStageLengthLabel.textContent = pendingLabel;
+    showScreen(screenStage);
+  });
+  document.getElementById('btn-length-full').addEventListener('click', function () {
+    pendingPool = allIndexes();
+    pendingCount = pendingPool.length;
+    pendingMapKey = 'World';
+    pendingIsCompletion = true;
+    pendingLabel = '世界一周（' + pendingPool.length + 'ヶ国）';
+    elStageLengthLabel.textContent = pendingLabel;
+    showScreen(screenStage);
+  });
+  document.getElementById('btn-stage-back').addEventListener('click', function () {
+    showScreen(screenLength);
+  });
+
+  /* ---------------- region select (shared by quiz and learn) ---------------- */
+
+  var regionFlow = 'quiz'; // 'quiz' | 'learn' -- which flow opened the region screen
+
+  var elRegionGrid = document.getElementById('region-grid');
+  REGION_ORDER.forEach(function (region) {
+    var idxs = [];
+    for (var i = 0; i < COUNTRY_DATA.length; i++) {
+      if (COUNTRY_DATA[i].continent === region) idxs.push(i);
+    }
+    var card = document.createElement('button');
+    card.className = 'region-card';
+    var title = document.createElement('span');
+    title.className = 'title';
+    title.textContent = REGION_LABEL[region];
+    var desc = document.createElement('span');
+    desc.className = 'desc';
+    desc.textContent = idxs.length + 'ヶ国・地域';
+    card.appendChild(title);
+    card.appendChild(desc);
+    card.addEventListener('click', function () {
+      if (regionFlow === 'learn') {
+        startLearn(idxs);
+        return;
+      }
+      pendingPool = idxs;
+      pendingCount = idxs.length;
+      pendingMapKey = region;
+      pendingIsCompletion = true;
+      pendingLabel = REGION_LABEL[region] + '（' + idxs.length + 'ヶ国）';
+      elStageLengthLabel.textContent = pendingLabel;
+      showScreen(screenStage);
+    });
+    elRegionGrid.appendChild(card);
+  });
+
+  document.getElementById('btn-open-region').addEventListener('click', function () {
+    regionFlow = 'quiz';
+    showScreen(screenRegion);
+  });
+  document.getElementById('btn-region-back').addEventListener('click', function () {
+    showScreen(screenLength);
+  });
+
+  /* ---------------- quiz ---------------- */
+
+  var elStage = document.getElementById('stage');
+  var elSilhouette = document.getElementById('silhouette-box');
+  var elHudTime = document.getElementById('hud-time');
+  var elHudProgress = document.getElementById('hud-progress');
+  var elHudMiss = document.getElementById('hud-miss');
+  var elAnswerForm = document.getElementById('answer-form');
+  var elAnswerInput = document.getElementById('answer-input');
+  var elFeedback = document.getElementById('feedback-msg');
+
+  var quiz = null; // { mode, pool, mapKey, isCompletion, order, index, missCount, startTime, current }
+  var quizTimerHandle = null;
+
+  function startQuiz(mode, pool, count, mapKey, isCompletion) {
+    var order = shuffledOrder(pool.length);
+    if (count < order.length) order = order.slice(0, count);
+    quiz = {
+      mode: mode,
+      pool: pool,
+      mapKey: mapKey,
+      isCompletion: isCompletion,
+      order: order,
+      total: order.length,
+      index: 0,
+      missCount: 0,
+      startTime: performance.now(),
+      current: null
+    };
+    elHudProgress.textContent = '0 / ' + quiz.total;
+    elHudMiss.textContent = '0';
+    elHudTime.textContent = '00:00.0';
+    showScreen(screenQuiz);
+    loadQuizQuestion();
+    if (quizTimerHandle) clearInterval(quizTimerHandle);
+    quizTimerHandle = setInterval(tickQuizTimer, 100);
+    focusAnswerInput();
+  }
+
+  function focusAnswerInput() {
+    elAnswerInput.focus({ preventScroll: true });
+  }
+
+  function applyMotion(svg, mode) {
+    svg.style.transform = '';
+    svg.style.animation = '';
+    if (mode === 'mirror') {
+      svg.style.transform = 'scaleX(-1)';
+    } else if (mode === 'randmirror') {
+      var mirrored = Math.random() < 0.5;
+      svg.style.animation = (mirrored ? 'spin-mirror' : 'spin') + ' 1.2s linear infinite';
+    }
+  }
+
+  function loadQuizQuestion() {
+    var item = COUNTRY_DATA[quiz.pool[quiz.order[quiz.index]]];
+    quiz.current = item;
+    renderSilhouette(elSilhouette, item);
+    applyMotion(elSilhouette.querySelector('svg'), quiz.mode);
+    elAnswerInput.value = '';
+    elAnswerInput.classList.remove('wrong');
+    elFeedback.textContent = ' ';
+    elFeedback.className = 'feedback-msg';
+  }
+
+  function tickQuizTimer() {
+    if (!quiz) return;
+    elHudTime.textContent = formatTime(performance.now() - quiz.startTime);
+  }
+
+  elAnswerForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!quiz) return;
+    var val = normalizeAnswer(elAnswerInput.value);
+    if (!val) return;
+    var accepted = quiz.current.aliases;
+    if (accepted.indexOf(val) !== -1) {
+      elFeedback.textContent = '正解！ ' + quiz.current.name_ja + ' (' + quiz.current.name + ')';
+      elFeedback.className = 'feedback-msg correct';
+      elStage.classList.remove('shake');
+      elStage.classList.add('correct-flash');
+      setTimeout(function () { elStage.classList.remove('correct-flash'); }, 400);
+      advanceQuiz();
+    } else {
+      quiz.missCount++;
+      elHudMiss.textContent = quiz.missCount;
+      elFeedback.textContent = 'ちがう… もう一度！';
+      elFeedback.className = 'feedback-msg wrong';
+      elAnswerInput.classList.add('wrong');
+      elStage.classList.remove('shake');
+      void elStage.offsetWidth;
+      elStage.classList.add('shake');
+      elAnswerInput.value = '';
+      focusAnswerInput();
+    }
+  });
+  elStage.addEventListener('animationend', function (e) {
+    if (e.animationName !== 'flashgreen') elStage.classList.remove('shake');
+  });
+
+  function advanceQuiz() {
+    quiz.index++;
+    elHudProgress.textContent = quiz.index + ' / ' + quiz.total;
+    if (quiz.index >= quiz.total) {
+      finishQuiz();
+      return;
+    }
+    setTimeout(function () {
+      loadQuizQuestion();
+      focusAnswerInput();
+    }, 550);
+  }
+
+  function finishQuiz() {
+    var elapsed = performance.now() - quiz.startTime;
+    if (quizTimerHandle) { clearInterval(quizTimerHandle); quizTimerHandle = null; }
+    document.getElementById('res-time').textContent = formatTime(elapsed);
+    document.getElementById('res-miss').textContent = quiz.missCount;
+    document.getElementById('res-avg').textContent = (elapsed / 1000 / quiz.total).toFixed(1) + '秒';
+    var totalAttempts = quiz.total + quiz.missCount;
+    var accuracy = Math.round((quiz.total / totalAttempts) * 100);
+    document.getElementById('res-accuracy').textContent = accuracy + '%';
+    var isGrand = quiz.isCompletion;
+    var titleLabel = isGrand
+      ? (quiz.mapKey === 'World' ? '世界' + quiz.total + 'ヶ国 全制覇！' : REGION_LABEL[quiz.mapKey] + '全制覇！')
+      : quiz.total + '問クリア！';
+    document.getElementById('result-title').textContent = titleLabel;
+    renderFullMap(quiz.mapKey, isGrand);
+    updateShareLinks(titleLabel, formatTime(elapsed), accuracy);
+    showScreen(screenResult);
+  }
+
+  /* ---------------- share ---------------- */
+
+  var currentShareText = '';
+  var currentShareFullText = '';
+
+  function buildShareText(titleLabel, timeText, accuracy) {
+    return '世界の国シルエットクイズで' + titleLabel + '\nクリアタイム: ' + timeText + ' / 正答率' + accuracy + '%';
+  }
+
+  function updateShareLinks(titleLabel, timeText, accuracy) {
+    var pageUrl = location.href.split('?')[0];
+    currentShareText = buildShareText(titleLabel, timeText, accuracy);
+    currentShareFullText = currentShareText + '\n' + pageUrl;
+    document.getElementById('btn-share-x').href =
+      'https://twitter.com/intent/tweet?text=' + encodeURIComponent(currentShareText) + '&url=' + encodeURIComponent(pageUrl);
+    document.getElementById('share-note').textContent = ' ';
+  }
+
+  var elShareNote = document.getElementById('share-note');
+
+  document.getElementById('btn-share-copy').addEventListener('click', function () {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(currentShareFullText).then(function () {
+        elShareNote.textContent = 'コピーしました！';
+        setTimeout(function () { elShareNote.textContent = ' '; }, 2500);
+      }).catch(function () {
+        elShareNote.textContent = 'コピーできませんでした。ブラウザの権限設定をご確認ください。';
+      });
+    } else {
+      elShareNote.textContent = 'このブラウザはコピー機能に対応していません。';
+    }
+  });
+
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    var elShareNative = document.getElementById('btn-share-native');
+    elShareNative.hidden = false;
+    elShareNative.addEventListener('click', function () {
+      navigator.share({
+        text: currentShareText,
+        url: location.href.split('?')[0]
+      }).catch(function () { /* ユーザーがキャンセルした場合は何もしない */ });
+    });
+  }
+
+  function renderFullMap(mapKey, isGrand) {
+    var box = document.getElementById('full-map-box');
+    box.classList.remove('full-map-box');
+    void box.offsetWidth;
+    box.classList.add('full-map-box');
+    box.classList.toggle('grand', !!isGrand);
+    renderSilhouette(box, WORLD_FULL[mapKey] || WORLD_FULL.World);
+  }
+
+  document.getElementById('btn-mode-easy').addEventListener('click', function () { startQuiz('easy', pendingPool, pendingCount, pendingMapKey, pendingIsCompletion); });
+  document.getElementById('btn-mode-mirror').addEventListener('click', function () { startQuiz('mirror', pendingPool, pendingCount, pendingMapKey, pendingIsCompletion); });
+  document.getElementById('btn-mode-randmirror').addEventListener('click', function () { startQuiz('randmirror', pendingPool, pendingCount, pendingMapKey, pendingIsCompletion); });
+  document.getElementById('btn-retry').addEventListener('click', function () {
+    if (!quiz) return;
+    startQuiz(quiz.mode, quiz.pool, quiz.total, quiz.mapKey, quiz.isCompletion);
+  });
+  document.getElementById('btn-back').addEventListener('click', function () { quiz = null; showScreen(screenLength); });
+
+  document.getElementById('btn-quit-quiz').addEventListener('click', function () {
+    if (quizTimerHandle) { clearInterval(quizTimerHandle); quizTimerHandle = null; }
+    quiz = null;
+    showScreen(screenLength);
+  });
+
+  /* ---------------- learn mode ---------------- */
+
+  var elLearnSilhouette = document.getElementById('learn-silhouette-box');
+  var elLearnFlag = document.getElementById('learn-flag');
+  var elLearnName = document.getElementById('learn-name');
+  var elLearnKana = document.getElementById('learn-kana');
+  var elLearnProgress = document.getElementById('learn-progress');
+  var learnIndex = 0;
+  var LEARN_ORDER = [];
+
+  function startLearn(idxs) {
+    LEARN_ORDER = idxs.slice().sort(function (a, b) {
+      return COUNTRY_DATA[a].name < COUNTRY_DATA[b].name ? -1 : 1;
+    });
+    learnIndex = 0;
+    showScreen(screenLearn);
+    renderLearn();
+  }
+
+  function renderLearn() {
+    var item = COUNTRY_DATA[LEARN_ORDER[learnIndex]];
+    renderSilhouette(elLearnSilhouette, item);
+    if (item.flag && typeof FLAG_DATA !== 'undefined' && FLAG_DATA[item.flag]) {
+      elLearnFlag.innerHTML = FLAG_DATA[item.flag];
+      elLearnFlag.hidden = false;
+    } else {
+      elLearnFlag.innerHTML = '';
+      elLearnFlag.hidden = true;
+    }
+    elLearnName.textContent = item.name;
+    elLearnKana.textContent = item.name_ja;
+    elLearnProgress.textContent = (learnIndex + 1) + ' / ' + LEARN_ORDER.length;
+  }
+
+  document.getElementById('btn-mode-learn').addEventListener('click', function () {
+    regionFlow = 'learn';
+    showScreen(screenRegion);
+  });
+  document.getElementById('btn-learn-prev').addEventListener('click', function () {
+    learnIndex = (learnIndex - 1 + LEARN_ORDER.length) % LEARN_ORDER.length;
+    renderLearn();
+  });
+  document.getElementById('btn-learn-next').addEventListener('click', function () {
+    learnIndex = (learnIndex + 1) % LEARN_ORDER.length;
+    renderLearn();
+  });
+  document.getElementById('btn-learn-back').addEventListener('click', function () {
+    showScreen(screenRegion);
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (screenLearn.hidden) return;
+    if (e.key === 'ArrowRight') {
+      document.getElementById('btn-learn-next').click();
+    } else if (e.key === 'ArrowLeft') {
+      document.getElementById('btn-learn-prev').click();
+    }
+  });
+
+  /* ---------------- theme (light / dark) ---------------- */
+
+  var THEME_KEY = 'country_quiz_theme_v1';
+  var elThemeToggle = document.getElementById('theme-toggle');
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      elThemeToggle.textContent = 'ライト';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      elThemeToggle.textContent = 'ダーク';
+    }
+  }
+
+  function loadSavedTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveTheme(theme) {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {
+      // 保存できない環境(プライベートモード等)でも見た目の切り替え自体は続行する
+    }
+  }
+
+  applyTheme(loadSavedTheme() === 'dark' ? 'dark' : 'light');
+
+  elThemeToggle.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    saveTheme(next);
+  });
+
+  /* ---------------- debug preview（確認用・URLに ?preview=result をつけた時だけ動く） ---------------- */
+  if (location.search.indexOf('preview=result') !== -1) {
+    var previewKeyMatch = location.search.match(/map=(\w+)/);
+    var previewKey = previewKeyMatch ? previewKeyMatch[1].replace(/_/g, ' ') : 'World';
+    var previewIsGrand = location.search.indexOf('grand=1') !== -1;
+    document.getElementById('result-title').textContent = previewIsGrand ? (previewKey === 'World' ? '世界200ヶ国 全制覇！' : (REGION_LABEL[previewKey] || previewKey) + '全制覇！') : '10問クリア！';
+    document.getElementById('res-time').textContent = '02:15.3';
+    document.getElementById('res-miss').textContent = '4';
+    document.getElementById('res-avg').textContent = '2.9秒';
+    document.getElementById('res-accuracy').textContent = '92%';
+    renderFullMap(previewKey, previewIsGrand);
+    updateShareLinks(previewIsGrand ? '全制覇！' : '10問クリア！', '02:15.3', 92);
+    showScreen(screenResult);
+  }
+
+})();
+</script>
+
+</body>
+</html>
