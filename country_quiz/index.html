@@ -578,41 +578,77 @@
 
   /* ---------------- shared shape rendering ---------------- */
 
-  // 縦横比が極端でほぼ線状になってしまう国だけ、形は歪めずに枠内で少し大きく見せる。
-  // はみ出しは .silhouette-box 側の overflow: visible で許容するため、上限を設けて過度な重なりを防ぐ。
-  // 塗りつぶし面積が枠に対して0.4%未満の「点在した島国」9ヶ国が対象。
-  var THIN_COUNTRY_ZOOM = {
-    'KIR': 1.4, // キリバス
-    'TUV': 1.4, // ツバル
-    'FSM': 1.4, // ミクロネシア連邦
-    'MHL': 1.4, // マーシャル諸島
-    'SYC': 1.4, // セーシェル
-    'MDV': 1.4, // モルディブ
-    'PLW': 1.4, // パラオ
-    'MUS': 1.4, // モーリシャス
-    'TON': 1.4  // トンガ
+  // 塗りつぶし面積が枠に対して0.4%未満の「点在した島国」9ヶ国は、
+  // 島（サブパス）ごとに自分の重心を中心に個別拡大して、全体の散らばり方は変えずに
+  // 1つ1つの島を見える大きさまで底上げする（地図の縮尺表示と同じ考え方）。
+  var SCATTERED_ISLAND_CODES = {
+    'KIR': true, // キリバス
+    'TUV': true, // ツバル
+    'FSM': true, // ミクロネシア連邦
+    'MHL': true, // マーシャル諸島
+    'SYC': true, // セーシェル
+    'MDV': true, // モルディブ
+    'PLW': true, // パラオ
+    'MUS': true, // モーリシャス
+    'TON': true  // トンガ
   };
+  var ISLAND_MIN_AREA = 0.02; // viewBox単位での最低面積の目安
+  var ISLAND_MAX_SCALE = 20;  // 極端に小さい島でも歪みすぎないための上限
 
-  function renderSilhouette(container, item, zoomThin) {
+  function renderSilhouette(container, item, expandIslands) {
     container.textContent = '';
     if (item.code) container.setAttribute('data-code', item.code);
-    var factor = zoomThin && THIN_COUNTRY_ZOOM[item.code];
+    var d = (expandIslands && SCATTERED_ISLAND_CODES[item.code]) ? expandTinyIslands(item.d) : item.d;
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', factor ? zoomedViewBox(item.vb, factor) : item.vb);
+    svg.setAttribute('viewBox', item.vb);
     var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', item.d);
+    path.setAttribute('d', d);
     path.setAttribute('fill-rule', 'evenodd');
     svg.appendChild(path);
     container.appendChild(svg);
   }
 
-  function zoomedViewBox(vb, factor) {
-    var parts = vb.trim().split(/\s+/).map(Number);
-    var minX = parts[0], minY = parts[1], w = parts[2], h = parts[3];
-    var newW = w / factor, newH = h / factor;
-    var newMinX = minX + (w - newW) / 2;
-    var newMinY = minY + (h - newH) / 2;
-    return newMinX + ' ' + newMinY + ' ' + newW + ' ' + newH;
+  function polygonAreaAndCentroid(pts) {
+    var a = 0, cx = 0, cy = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var p0 = pts[i], p1 = pts[(i + 1) % pts.length];
+      var cross = p0[0] * p1[1] - p1[0] * p0[1];
+      a += cross;
+      cx += (p0[0] + p1[0]) * cross;
+      cy += (p0[1] + p1[1]) * cross;
+    }
+    a *= 0.5;
+    if (Math.abs(a) < 1e-9) {
+      var sx = 0, sy = 0;
+      for (var j = 0; j < pts.length; j++) { sx += pts[j][0]; sy += pts[j][1]; }
+      return { area: 0, cx: sx / pts.length, cy: sy / pts.length };
+    }
+    return { area: Math.abs(a), cx: cx / (6 * a), cy: cy / (6 * a) };
+  }
+
+  function expandTinyIslands(d) {
+    var subpaths = d.trim().split(/(?=M )/).filter(function (s) { return s.trim(); });
+    var out = [];
+    for (var s = 0; s < subpaths.length; s++) {
+      var nums = subpaths[s].replace(/[MLZ]/g, '').trim().split(/\s+/).map(Number);
+      var pts = [];
+      for (var i = 0; i + 1 < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]);
+      if (pts.length < 3) { out.push(subpaths[s]); continue; }
+      var info = polygonAreaAndCentroid(pts);
+      var scale = 1;
+      if (info.area > 0 && info.area < ISLAND_MIN_AREA) {
+        scale = Math.min(Math.sqrt(ISLAND_MIN_AREA / info.area), ISLAND_MAX_SCALE);
+      }
+      if (scale === 1) { out.push(subpaths[s]); continue; }
+      var newPts = pts.map(function (p) {
+        return [info.cx + (p[0] - info.cx) * scale, info.cy + (p[1] - info.cy) * scale];
+      });
+      var tokens = ['M ' + newPts[0][0].toFixed(4) + ' ' + newPts[0][1].toFixed(4)];
+      for (var k = 1; k < newPts.length; k++) tokens.push('L ' + newPts[k][0].toFixed(4) + ' ' + newPts[k][1].toFixed(4));
+      tokens.push('Z');
+      out.push(tokens.join(' '));
+    }
+    return out.join(' ');
   }
 
   function shuffledOrder(n) {
