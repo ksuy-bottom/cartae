@@ -9,14 +9,60 @@
 
   :root {
     --page-bg: #d9c9a3;
-    --face: #c4a878;
-    --light: #f2e8d0;
+    --face: #f2e8d5;
     --shadow: #8a7355;
     --darkshadow: #4a3c28;
     --text: #3a2f1f;
+    --heading: #2a2114;
+    --hover-tint: #eaddb8;
     --lcd-bg: #2a1f14;
     --lcd-text: #ff9248;
     --lcd-safe: #8fae5c;
+    --msg-win: #5a7d3a;
+    --msg-lose: #b83220;
+    --overlay-color: #6b5230;
+    --overlay-outline: #f2e8d0;
+    --win-flash-mid-bg: #c9d9a8;
+    --win-flash-mid-border: #5a7d3a;
+    --win-flash-end-bg: #e6ecd4;
+    --win-flash-end-border: #b8c89a;
+    --n1: #1a4d8f;
+    --n2: #3d7a3d;
+    --n3: #b83232;
+    --n4: #4a3a8f;
+    --n5: #7a3a28;
+    --n6: #2a7a7a;
+    --n7: #3a2f1f;
+    --n8: #8a7355;
+  }
+
+  :root[data-theme="dark"] {
+    --page-bg: #2b1f13;
+    --face: #201609;
+    --shadow: #6b5a3e;
+    --darkshadow: #b89a68;
+    --text: #f2e8d0;
+    --heading: #f2e8d0;
+    --hover-tint: #4a3a22;
+    --lcd-bg: #140d08;
+    --lcd-text: #ff9248;
+    --lcd-safe: #8fae5c;
+    --msg-win: #8fae5c;
+    --msg-lose: #e0674a;
+    --overlay-color: #d9b878;
+    --overlay-outline: #201609;
+    --win-flash-mid-bg: #3a5a2a;
+    --win-flash-mid-border: #8fae5c;
+    --win-flash-end-bg: #22301a;
+    --win-flash-end-border: #4a6a38;
+    --n1: #6bafe0;
+    --n2: #85c285;
+    --n3: #e07a7a;
+    --n4: #a596e0;
+    --n5: #cf9a7a;
+    --n6: #6fd0d0;
+    --n7: #f2e8d0;
+    --n8: #b8a888;
   }
 
   body {
@@ -31,24 +77,41 @@
     padding: 20px;
   }
 
-  .back-link {
+  .top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
     max-width: 500px;
-    text-align: left;
+    margin-bottom: 14px;
+  }
+
+  .back-link {
     color: var(--darkshadow);
     text-decoration: none;
     font-size: 0.8rem;
     letter-spacing: 0.04em;
-    margin-bottom: 14px;
   }
   .back-link:hover { color: var(--text); text-decoration: underline; }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--darkshadow);
+    color: var(--darkshadow);
+    font-family: Tahoma, Verdana, sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--text); }
 
   h1 {
     font-family: Tahoma, Verdana, sans-serif;
     font-weight: bold;
     font-size: clamp(1.7rem, 5vw, 2.4rem);
     letter-spacing: 0.04em;
-    color: #2a2114;
+    color: var(--heading);
     text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
     margin-bottom: 2px;
   }
@@ -115,7 +178,7 @@
 
   #reset-btn:active {
     border-style: inset;
-    background: #eaddb8;
+    background: var(--hover-tint);
   }
 
   .difficulty-bar {
@@ -136,8 +199,8 @@
     white-space: nowrap;
   }
 
-  .diff-btn:hover { background: #eaddb8; }
-  .diff-btn.active { border-style: inset; background: #eaddb8; }
+  .diff-btn:hover { background: var(--hover-tint); }
+  .diff-btn.active { border-style: inset; background: var(--hover-tint); }
 
   .board-wrap {
     background: var(--face);
@@ -173,17 +236,17 @@
   }
 
   .cell:hover:not(.open):not(.exploded) {
-    background: #eaddb8;
+    background: var(--hover-tint);
   }
 
   .cell.open {
-    background: #eaddb8;
+    background: var(--page-bg);
     border: 1px solid var(--shadow);
     cursor: default;
   }
 
   .cell.flagged::after {
-    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M6 2 L6 22' stroke='%233a2f1f' stroke-width='2' fill='none'/%3E%3Cpath d='M6 3 L18 6.5 L6 10 Z' fill='%23b83232'/%3E%3C/svg%3E");
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M6 2 L6 22' stroke='%23157a72' stroke-width='2' fill='none'/%3E%3Cpath d='M6 3 L18 6.5 L6 10 Z' fill='%23b83232'/%3E%3C/svg%3E");
   }
 
   .cell.mine-show::after {
@@ -215,14 +278,14 @@
     100% { opacity: 1; transform: scale(1); }
   }
 
-  .n1 { color: #1a4d8f; }
-  .n2 { color: #3d7a3d; }
-  .n3 { color: #b83232; }
-  .n4 { color: #4a3a8f; }
-  .n5 { color: #7a3a28; }
-  .n6 { color: #2a7a7a; }
-  .n7 { color: #3a2f1f; }
-  .n8 { color: #8a7355; }
+  .n1 { color: var(--n1); }
+  .n2 { color: var(--n2); }
+  .n3 { color: var(--n3); }
+  .n4 { color: var(--n4); }
+  .n5 { color: var(--n5); }
+  .n6 { color: var(--n6); }
+  .n7 { color: var(--n7); }
+  .n8 { color: var(--n8); }
 
   #message {
     margin-top: 14px;
@@ -235,8 +298,8 @@
     transition: all 0.3s;
   }
 
-  #message.win { color: #5a7d3a; animation: msgPulse 1s ease infinite alternate; }
-  #message.lose { color: #b83220; }
+  #message.win { color: var(--msg-win); animation: msgPulse 1s ease infinite alternate; }
+  #message.lose { color: var(--msg-lose); }
 
   @keyframes msgPulse {
     from { opacity: 0.7; }
@@ -247,8 +310,8 @@
 
   @keyframes winFlash {
     0%   { background: var(--face); border-color: var(--shadow); }
-    40%  { background: #c9d9a8; border-color: #5a7d3a; }
-    100% { background: #e6ecd4; border-color: #b8c89a; }
+    40%  { background: var(--win-flash-mid-bg); border-color: var(--win-flash-mid-border); }
+    100% { background: var(--win-flash-end-bg); border-color: var(--win-flash-end-border); }
   }
 
   .cell.flag-win { animation: flagWin 0.5s ease forwards; }
@@ -270,8 +333,8 @@
     transform: translate(-50%, -50%) scale(0);
     font-family: Tahoma, Verdana, sans-serif; font-weight: 900;
     font-size: clamp(1.8rem, 7vw, 3.5rem); letter-spacing: 0.05em;
-    color: #6b5230;
-    text-shadow: 2px 2px 0 #f2e8d0, -1px -1px 0 #f2e8d0, 1px -1px 0 #f2e8d0, -1px 1px 0 #f2e8d0;
+    color: var(--overlay-color);
+    text-shadow: 2px 2px 0 var(--overlay-outline), -1px -1px 0 var(--overlay-outline), 1px -1px 0 var(--overlay-outline), -1px 1px 0 var(--overlay-outline);
     z-index: 1000; pointer-events: none;
     transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.4s;
     opacity: 0; white-space: nowrap;
@@ -299,7 +362,10 @@
 </head>
 <body>
 
-<a class="back-link" href="../index.html">← GAME ROOM</a>
+<div class="top-row">
+  <a class="back-link" href="../index.html">← GAME ROOM</a>
+  <button class="theme-toggle" id="theme-toggle" aria-label="配色を切り替え">ダーク</button>
+</div>
 
 <h1>MINESWEEPER</h1>
 <p class="subtitle">CLASSIC EDITION</p>
@@ -680,6 +746,45 @@
   }
 
   initGame();
+
+  /* ---------------- theme (light / dark) ---------------- */
+
+  var THEME_KEY = 'minesweeper_theme_v1';
+  var elThemeToggle = document.getElementById('theme-toggle');
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      elThemeToggle.textContent = 'ライト';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      elThemeToggle.textContent = 'ダーク';
+    }
+  }
+
+  function loadSavedTheme() {
+    try {
+      return localStorage.getItem(THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveTheme(theme) {
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {
+      // 保存できない環境(プライベートモード等)でも見た目の切り替え自体は続行する
+    }
+  }
+
+  applyTheme(loadSavedTheme() === 'dark' ? 'dark' : 'light');
+
+  elThemeToggle.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    saveTheme(next);
+  });
 </script>
 </body>
 </html>
