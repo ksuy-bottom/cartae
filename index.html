@@ -9,11 +9,12 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #07080d;
-    --cyber-accent: #00d4ff;
-    --card-accent: #c8a96e;
-    --text: #d0d8e8;
-    --dim: #3a4a5a;
+    --bg-deep: #e8dcc4;
+    --bg-mid: #d4c4a0;
+    --cyber-accent: #157a72;
+    --card-accent: #a13258;
+    --text: #3a2f1f;
+    --dim: #6b5842;
   }
 
   html, body {
@@ -21,7 +22,7 @@
   }
 
   body {
-    background: var(--bg);
+    background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-mid) 100%);
     color: var(--text);
     font-family: 'Share Tech Mono', monospace;
     min-height: 100vh;
@@ -33,31 +34,29 @@
     position: relative;
   }
 
-  /* Animated background grid */
+  /* Faint aged-paper grid */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(58,47,31,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(58,47,31,0.05) 1px, transparent 1px);
     background-size: 40px 40px;
     animation: gridMove 20s linear infinite;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Diagonal divider glow */
+  /* Soft vignette, like an old photograph's darkened edges */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(0,212,255,0.04) 0%,
-      transparent 45%,
-      transparent 55%,
-      rgba(200,169,110,0.04) 100%
+    background: radial-gradient(
+      ellipse at center,
+      transparent 50%,
+      rgba(58,47,31,0.10) 100%
     );
     pointer-events: none;
     z-index: 0;
@@ -88,7 +87,7 @@
 
   .header-label {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     letter-spacing: 0.4em;
     color: var(--dim);
     text-transform: uppercase;
@@ -100,11 +99,8 @@
     font-weight: 900;
     font-size: clamp(2rem, 6vw, 3.5rem);
     letter-spacing: 0.2em;
-    color: #f0f4fa;
-    background: linear-gradient(90deg, var(--cyber-accent) 0%, #fff 50%, var(--card-accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #2a2114;
+    text-shadow: 2px 2px 0 rgba(58,47,31,0.12);
   }
 
   .header-line {
@@ -146,41 +142,41 @@
     transform: translateY(-6px);
   }
 
-  /* Minesweeper card — cyber */
+  /* Minesweeper card — teal ink */
   .card-mine {
-    background: #0a0e18;
-    border-color: rgba(0,212,255,0.25);
-    box-shadow: 0 0 0 0 rgba(0,212,255,0);
+    background: #f2e8d5;
+    border-color: rgba(21,122,114,0.35);
+    box-shadow: 0 0 0 0 rgba(21,122,114,0);
     animation-delay: 0.1s;
   }
   .card-mine:hover {
-    box-shadow: 0 0 40px rgba(0,212,255,0.15), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(0,212,255,0.6);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(21,122,114,0.7);
   }
   .card-mine::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at top left, rgba(0,212,255,0.08) 0%, transparent 60%);
+    background: radial-gradient(ellipse at top left, rgba(21,122,114,0.06) 0%, transparent 60%);
     pointer-events: none;
   }
 
   /* Cartae card — elegant */
   .card-carte {
-    background: #0e0c09;
-    border-color: rgba(200,169,110,0.25);
-    box-shadow: 0 0 0 0 rgba(200,169,110,0);
+    background: #f2e8d5;
+    border-color: rgba(161,50,88,0.35);
+    box-shadow: 0 0 0 0 rgba(161,50,88,0);
     animation-delay: 0.2s;
   }
   .card-carte:hover {
-    box-shadow: 0 0 40px rgba(200,169,110,0.12), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(200,169,110,0.6);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(161,50,88,0.7);
   }
   .card-carte::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at top right, rgba(200,169,110,0.07) 0%, transparent 60%);
+    background: radial-gradient(ellipse at top right, rgba(161,50,88,0.05) 0%, transparent 60%);
     pointer-events: none;
   }
 
@@ -204,9 +200,16 @@
     line-height: 1;
     margin-bottom: 20px;
     display: block;
-    filter: drop-shadow(0 0 12px currentColor);
+    filter: drop-shadow(1px 2px 0 rgba(58,47,31,0.18));
   }
-  .card-mine .card-icon { color: var(--cyber-accent); }
+  .card-icon-mine {
+    width: 2.4rem;
+    height: auto;
+    margin-bottom: 20px;
+    display: block;
+    color: var(--cyber-accent);
+    filter: drop-shadow(1px 2px 0 rgba(58,47,31,0.18));
+  }
   .card-carte .card-icon { color: var(--card-accent); }
 
   .card-title {
@@ -217,29 +220,28 @@
     font-weight: 700;
     font-size: 1.3rem;
     letter-spacing: 0.15em;
-    color: #fff;
+    color: #12433f;
   }
   .card-carte .card-title {
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: 0.05em;
-    color: #f0e6d0;
-    text-shadow: 0 0 20px rgba(200,169,110,0.6), 0 0 60px rgba(200,169,110,0.2);
+    color: #6e1e3a;
   }
 
   .card-desc {
     font-size: 0.78rem;
     line-height: 1.7;
-    opacity: 0.85;
+    opacity: 0.9;
     margin-bottom: 28px;
-    color: #c8d8e8;
+    color: #5a4a3a;
   }
   .card-carte .card-desc {
     font-family: 'Playfair Display', serif;
     font-style: italic;
     font-size: 0.85rem;
-    color: #e0d0b0;
+    color: #6e4152;
   }
 
   .card-cta {
@@ -255,21 +257,21 @@
   }
   .card-mine .card-cta {
     color: var(--cyber-accent);
-    border-color: rgba(0,212,255,0.4);
+    border-color: rgba(21,122,114,0.5);
   }
   .card-mine:hover .card-cta {
-    background: rgba(0,212,255,0.1);
+    background: rgba(21,122,114,0.1);
   }
   .card-carte .card-cta {
     color: var(--card-accent);
-    border-color: rgba(200,169,110,0.4);
+    border-color: rgba(161,50,88,0.5);
     font-family: 'Playfair Display', serif;
     font-style: italic;
     letter-spacing: 0.1em;
     font-size: 0.85rem;
   }
   .card-carte:hover .card-cta {
-    background: rgba(200,169,110,0.08);
+    background: rgba(161,50,88,0.08);
   }
 
   /* Corner decorations */
@@ -280,49 +282,49 @@
   }
   .corner-tl { top: 8px; left: 8px; border-top: 1px solid; border-left: 1px solid; }
   .corner-br { bottom: 8px; right: 8px; border-bottom: 1px solid; border-right: 1px solid; }
-  .card-mine .corner { border-color: rgba(0,212,255,0.4); }
-  .card-carte .corner { border-color: rgba(200,169,110,0.4); }
+  .card-mine .corner { border-color: rgba(21,122,114,0.5); }
+  .card-carte .corner { border-color: rgba(161,50,88,0.5); }
 
-  /* Sudoku card — minimal mono */
+  /* Sudoku card — charcoal ink */
   .card-sudoku {
-    background: #0b0b0b;
-    border-color: rgba(220,220,220,0.2);
-    box-shadow: 0 0 0 0 rgba(220,220,220,0);
+    background: #f2e8d5;
+    border-color: rgba(90,74,58,0.3);
+    box-shadow: 0 0 0 0 rgba(90,74,58,0);
     animation-delay: 0.3s;
   }
   .card-sudoku:hover {
-    box-shadow: 0 0 40px rgba(220,220,220,0.08), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(220,220,220,0.55);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(90,74,58,0.6);
   }
   .card-sudoku::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at bottom right, rgba(220,220,220,0.05) 0%, transparent 60%);
+    background: radial-gradient(ellipse at bottom right, rgba(90,74,58,0.05) 0%, transparent 60%);
     pointer-events: none;
   }
-  .card-sudoku .card-tag  { color: #aaaaaa; font-size: 0.65rem; letter-spacing: 0.35em; }
-  .card-sudoku .card-icon { color: #cccccc; filter: none; font-size: 3rem; }
+  .card-sudoku .card-tag  { color: #5a4a3a; font-size: 0.65rem; letter-spacing: 0.35em; }
+  .card-sudoku .card-icon { color: #5a4a3a; filter: none; font-size: 3rem; }
   .card-sudoku .card-title {
     font-family: 'Share Tech Mono', monospace;
     font-size: 1.25rem;
     letter-spacing: 0.2em;
-    color: #eeeeee;
+    color: #2e241a;
   }
-  .card-sudoku .card-desc { color: #a0a8b0; }
+  .card-sudoku .card-desc { color: #6b5842; }
   .card-sudoku .card-cta {
-    color: #bbbbbb;
-    border-color: rgba(220,220,220,0.3);
+    color: #5a4a3a;
+    border-color: rgba(90,74,58,0.4);
   }
-  .card-sudoku:hover .card-cta { background: rgba(220,220,220,0.06); }
-  .card-sudoku .corner { border-color: rgba(220,220,220,0.3); }
+  .card-sudoku:hover .card-cta { background: rgba(90,74,58,0.08); }
+  .card-sudoku .corner { border-color: rgba(90,74,58,0.4); }
 
   /* Scan line on hover — mine only */
   .card-mine .scan {
     position: absolute;
     left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(21,122,114,0.5), transparent);
     top: -2px;
     transition: top 0s;
     pointer-events: none;
@@ -335,134 +337,141 @@
     100% { top: 100%; }
   }
 
-  /* Hit & Blow card — wood / vegetable theme */
+  /* Hit & Blow card — burnt sienna */
   .card-imo {
-    background: #1e150e;
-    border-color: rgba(178,59,46,0.3);
-    box-shadow: 0 0 0 0 rgba(178,59,46,0);
+    background: #f2e8d5;
+    border-color: rgba(184,85,31,0.35);
+    box-shadow: 0 0 0 0 rgba(184,85,31,0);
     animation-delay: 0.4s;
   }
   .card-imo:hover {
-    box-shadow: 0 0 40px rgba(178,59,46,0.15), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(178,59,46,0.6);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(184,85,31,0.7);
   }
   .card-imo::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at top left, rgba(178,59,46,0.08) 0%, transparent 60%);
+    background: radial-gradient(ellipse at top left, rgba(184,85,31,0.06) 0%, transparent 60%);
     pointer-events: none;
   }
-  .card-imo .card-tag { color: #d9714f; font-size: 0.65rem; letter-spacing: 0.35em; }
-  .card-imo .card-icon { color: #d9714f; }
+  .card-imo .card-tag { color: #b8551f; font-size: 0.65rem; letter-spacing: 0.35em; }
+  .card-icon-imo {
+    width: 2.4rem;
+    height: auto;
+    margin-bottom: 20px;
+    display: block;
+    color: #b8551f;
+    filter: drop-shadow(1px 2px 0 rgba(58,47,31,0.18));
+  }
   .card-imo .card-title {
     font-family: 'Share Tech Mono', monospace;
     font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: 0.12em;
-    color: #f3ecd9;
+    color: #7a3210;
   }
-  .card-imo .card-desc { color: #d6c4a8; }
+  .card-imo .card-desc { color: #8a5a3a; }
   .card-imo .card-cta {
-    color: #d9714f;
-    border-color: rgba(178,59,46,0.4);
+    color: #b8551f;
+    border-color: rgba(184,85,31,0.5);
   }
-  .card-imo:hover .card-cta { background: rgba(178,59,46,0.1); }
-  .card-imo .corner { border-color: rgba(178,59,46,0.4); }
+  .card-imo:hover .card-cta { background: rgba(184,85,31,0.1); }
+  .card-imo .corner { border-color: rgba(184,85,31,0.5); }
 
-  /* Prefecture Quiz card — nature / forest theme */
+  /* Prefecture Quiz card — forest ink */
   .card-pref {
-    background: #0a140f;
-    border-color: rgba(78,224,138,0.25);
-    box-shadow: 0 0 0 0 rgba(78,224,138,0);
+    background: #f2e8d5;
+    border-color: rgba(47,107,69,0.35);
+    box-shadow: 0 0 0 0 rgba(47,107,69,0);
     animation-delay: 0.5s;
   }
   .card-pref:hover {
-    box-shadow: 0 0 40px rgba(78,224,138,0.15), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(78,224,138,0.6);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(47,107,69,0.7);
   }
   .card-pref::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at bottom left, rgba(78,224,138,0.08) 0%, transparent 60%);
+    background: radial-gradient(ellipse at bottom left, rgba(47,107,69,0.06) 0%, transparent 60%);
     pointer-events: none;
   }
-  .card-pref .card-tag { color: #4ee08a; font-size: 0.65rem; letter-spacing: 0.35em; }
+  .card-pref .card-tag { color: #2f6b45; font-size: 0.65rem; letter-spacing: 0.35em; }
   .card-icon-map {
     width: 2.4rem;
     height: auto;
     margin-bottom: 20px;
     display: block;
-    filter: drop-shadow(0 0 10px rgba(78,224,138,0.6));
+    filter: drop-shadow(1px 2px 0 rgba(58,47,31,0.18));
   }
-  .card-icon-map path { fill: #4ee08a; }
+  .card-icon-map path { fill: #2f6b45; }
   .card-pref .card-title {
     font-family: 'Share Tech Mono', monospace;
     font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: 0.12em;
-    color: #eafff2;
+    color: #1c3f28;
   }
-  .card-pref .card-desc { color: #c8ddd0; }
+  .card-pref .card-desc { color: #4a6b52; }
   .card-pref .card-cta {
-    color: #4ee08a;
-    border-color: rgba(78,224,138,0.4);
+    color: #2f6b45;
+    border-color: rgba(47,107,69,0.5);
   }
-  .card-pref:hover .card-cta { background: rgba(78,224,138,0.1); }
-  .card-pref .corner { border-color: rgba(78,224,138,0.4); }
+  .card-pref:hover .card-cta { background: rgba(47,107,69,0.1); }
+  .card-pref .corner { border-color: rgba(47,107,69,0.5); }
 
-  /* Country Quiz card — ocean / globe theme */
+  /* Country Quiz card — indigo ink */
   .card-country {
-    background: #061420;
-    border-color: rgba(74,169,224,0.25);
-    box-shadow: 0 0 0 0 rgba(74,169,224,0);
+    background: #f2e8d5;
+    border-color: rgba(74,61,143,0.35);
+    box-shadow: 0 0 0 0 rgba(74,61,143,0);
     animation-delay: 0.6s;
   }
   .card-country:hover {
-    box-shadow: 0 0 40px rgba(74,169,224,0.15), 0 20px 60px rgba(0,0,0,0.5);
-    border-color: rgba(74,169,224,0.6);
+    box-shadow: 0 12px 30px rgba(58,47,31,0.18);
+    border-color: rgba(74,61,143,0.7);
   }
   .card-country::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at bottom right, rgba(74,169,224,0.08) 0%, transparent 60%);
+    background: radial-gradient(ellipse at bottom right, rgba(74,61,143,0.06) 0%, transparent 60%);
     pointer-events: none;
   }
-  .card-country .card-tag { color: #4aa9e0; font-size: 0.65rem; letter-spacing: 0.35em; }
+  .card-country .card-tag { color: #4a3d8f; font-size: 0.65rem; letter-spacing: 0.35em; }
   .card-icon-globe {
     width: 2.4rem;
     height: auto;
     margin-bottom: 20px;
     display: block;
-    filter: drop-shadow(0 0 10px rgba(74,169,224,0.6));
+    filter: drop-shadow(1px 2px 0 rgba(58,47,31,0.18));
   }
-  .card-icon-globe path, .card-icon-globe circle, .card-icon-globe ellipse { stroke: #4aa9e0; fill: none; }
+  .card-icon-globe path, .card-icon-globe circle, .card-icon-globe ellipse { stroke: #4a3d8f; fill: none; }
   .card-country .card-title {
     font-family: 'Share Tech Mono', monospace;
     font-weight: 700;
     font-size: 1.25rem;
     letter-spacing: 0.12em;
-    color: #e8f5ff;
+    color: #2a2258;
   }
-  .card-country .card-desc { color: #b8d4e8; }
+  .card-country .card-desc { color: #524878; }
   .card-country .card-cta {
-    color: #4aa9e0;
-    border-color: rgba(74,169,224,0.4);
+    color: #4a3d8f;
+    border-color: rgba(74,61,143,0.5);
   }
-  .card-country:hover .card-cta { background: rgba(74,169,224,0.1); }
-  .card-country .corner { border-color: rgba(74,169,224,0.4); }
+  .card-country:hover .card-cta { background: rgba(74,61,143,0.1); }
+  .card-country .corner { border-color: rgba(74,61,143,0.5); }
 
   /* Footer */
   .footer {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     letter-spacing: 0.25em;
     color: var(--dim);
     animation: fadeUp 0.8s ease 0.4s both;
   }
   .footer span {
-    opacity: 0.4;
+    opacity: 0.75;
   }
 </style>
 </head>
@@ -484,7 +493,11 @@
       <div class="corner corner-tl"></div>
       <div class="corner corner-br"></div>
       <div class="card-tag">// puzzle · logic</div>
-      <span class="card-icon">💣</span>
+      <svg class="card-icon-mine" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-width="1.4">
+        <path stroke="currentColor" fill="none" d="M12 1.5 L12 5.5 M12 18.5 L12 22.5 M1.5 12 L5.5 12 M18.5 12 L22.5 12 M4.6 4.6 L7.4 7.4 M16.6 16.6 L19.4 19.4 M19.4 4.6 L16.6 7.4 M7.4 16.6 L4.6 19.4"/>
+        <circle cx="12" cy="12" r="6.4" stroke="currentColor" fill="none"/>
+        <circle cx="9.4" cy="9.4" r="1.1" fill="currentColor" stroke="none"/>
+      </svg>
       <div class="card-title">MINE SWEEPER</div>
       <div class="card-desc">地雷を避けてフィールドを<br>開拓せよ。論理と直感の戦い。</div>
       <div class="card-cta">PLAY &nbsp;→</div>
@@ -517,7 +530,16 @@
       <div class="corner corner-tl"></div>
       <div class="corner corner-br"></div>
       <div class="card-tag">// deduction</div>
-      <span class="card-icon">🥔</span>
+      <svg class="card-icon-imo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke-width="1.4">
+        <ellipse cx="8.5" cy="16" rx="5.5" ry="4" stroke="currentColor" fill="none"/>
+        <circle cx="7" cy="15" r="0.6" fill="currentColor" stroke="none"/>
+        <circle cx="10" cy="17.2" r="0.6" fill="currentColor" stroke="none"/>
+        <circle cx="9" cy="14" r="0.5" fill="currentColor" stroke="none"/>
+        <circle cx="17" cy="7" r="3" stroke="currentColor" fill="none"/>
+        <circle cx="14" cy="8.5" r="2.2" stroke="currentColor" fill="none"/>
+        <circle cx="19.5" cy="8.5" r="2.2" stroke="currentColor" fill="none"/>
+        <path d="M17 10 L17 15" stroke="currentColor" fill="none"/>
+      </svg>
       <div class="card-title">IMO &amp; BROCCOLI</div>
       <div class="card-desc">隠された野菜を当てる<br>ヒット&ブローの<br>論理推理ゲーム。</div>
       <div class="card-cta">PLAY &nbsp;→</div>
@@ -547,7 +569,7 @@
         <path d="M 3.6 16.8 L 20.4 16.8"/>
       </svg>
       <div class="card-title">COUNTRY QUIZ</div>
-      <div class="card-desc">形だけを見て国名を英語で<br>当てる、世界200ヶ国の<br>シルエットクイズ。</div>
+      <div class="card-desc">形だけを見て国名を英語で<br>当てる、世界191ヶ国の<br>シルエットクイズ。</div>
       <div class="card-cta">PLAY &nbsp;→</div>
     </a>
 
