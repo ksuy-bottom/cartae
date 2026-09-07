@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WGNBZYGKKG"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-WGNBZYGKKG');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CARTAE — トランプ牌の論理パズル</title>
@@ -22,53 +15,55 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--paper); color:var(--ink); font-family:'Courier Prime','Courier New',monospace; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 20px 60px; position:relative; }
   body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E"); opacity:0.04; pointer-events:none; z-index:1000; }
+  .top-row { width:100%; max-width:520px; display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .back-link { display:inline-flex; align-items:center; min-height:44px; padding:0 4px; font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.04em; color:var(--ink-muted); text-decoration:none; transition:color 0.12s; }
+  .back-link:hover { color:var(--ink); text-decoration:underline; }
   .top-rule { width:100%; max-width:520px; display:flex; align-items:center; gap:12px; margin-bottom:24px; }
   .rule-line { flex:1; height:1.5px; background:var(--ink); }
   .rule-diamond { width:8px; height:8px; background:var(--ink); transform:rotate(45deg); flex-shrink:0; }
   .masthead { text-align:center; margin-bottom:6px; }
-  .masthead-sub { font-family:'Courier Prime',monospace; font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:6px; }
   h1 { font-family:'Playfair Display','Noto Serif JP',serif; font-size:clamp(3rem,10vw,5.5rem); font-weight:900; line-height:0.9; letter-spacing:-0.02em; color:var(--ink); margin-bottom:4px; }
   h1 .sol { color:var(--spade); } h1 .luna { color:var(--heart); }
-  .masthead-tagline { font-family:'Noto Serif JP',serif; font-size:0.72rem; color:var(--ink-muted); letter-spacing:0.15em; margin-top:8px; font-style:italic; }
   .bottom-rule { width:100%; max-width:520px; height:3px; background:linear-gradient(to right,transparent,var(--ink) 20%,var(--ink) 80%,transparent); margin:12px 0 20px; }
   .rules-card { background:var(--paper-dark); border:1px solid var(--border); border-radius:2px; padding:10px 18px; margin-bottom:22px; max-width:480px; width:100%; box-shadow:2px 2px 0 var(--border); }
-  .rules-title { font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:7px; text-align:center; }
-  .rules-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px 16px; }
-  .rule { font-size:0.65rem; color:var(--ink-light); display:flex; align-items:flex-start; gap:6px; line-height:1.4; }
+  .rules-title { font-size:1rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:9px; text-align:center; }
+  .rules-section { margin-bottom:8px; }
+  .rules-section:last-child { margin-bottom:0; }
+  .rules-grid { display:flex; flex-direction:column; gap:4px; }
+  .rule { font-size:1rem; color:var(--ink-light); display:flex; align-items:flex-start; gap:6px; line-height:1.4; }
   .rule-sym { flex-shrink:0; font-weight:700; }
-  .timer-bar { display:flex; align-items:center; gap:16px; margin-bottom:12px; font-size:0.65rem; color:var(--ink-muted); }
+  .timer-bar { display:flex; align-items:center; gap:16px; margin-bottom:12px; font-size:1rem; color:var(--ink-muted); }
   .timer-display { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:var(--ink); min-width:64px; text-align:center; }
   .timer-display.running { color:var(--heart); }
-  .stats-toggle { font-family:'Courier Prime',monospace; font-size:0.58rem; letter-spacing:0.12em; text-transform:uppercase; padding:4px 10px; border:1px solid var(--border); background:var(--paper); color:var(--ink-muted); cursor:pointer; border-radius:2px; transition:all 0.12s; }
+  .stats-toggle { font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.12em; text-transform:uppercase; padding:4px 10px; border:1px solid var(--border); background:var(--paper); color:var(--ink-muted); cursor:pointer; border-radius:2px; transition:all 0.12s; }
   .stats-toggle:hover { background:var(--paper-dark); color:var(--ink); }
   .stats-panel { display:none; background:var(--paper-dark); border:1.5px solid var(--ink); border-radius:2px; padding:14px 20px; margin-bottom:16px; max-width:480px; width:100%; box-shadow:3px 3px 0 var(--border); animation:slidedown 0.2s ease; }
   .stats-panel.show { display:block; }
   @keyframes slidedown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
-  .stats-title { font-size:0.55rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:10px; text-align:center; }
+  .stats-title { font-size:1rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--ink-muted); margin-bottom:10px; text-align:center; }
   .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
   .stat-item { text-align:center; }
   .stat-val { font-family:'Playfair Display',serif; font-size:1.4rem; font-weight:700; color:var(--ink); line-height:1; }
-  .stat-label { font-size:0.55rem; color:var(--ink-muted); letter-spacing:0.1em; margin-top:3px; }
+  .stat-label { font-size:1rem; color:var(--ink-muted); letter-spacing:0.1em; margin-top:3px; }
   .stats-diff-tabs { display:flex; gap:0; border:1px solid var(--border); border-radius:2px; overflow:hidden; margin-bottom:10px; }
-  .stats-diff-tab { font-family:'Courier Prime',monospace; font-size:0.58rem; letter-spacing:0.1em; padding:4px 12px; border:none; border-right:1px solid var(--border); background:var(--paper); color:var(--ink-muted); cursor:pointer; flex:1; transition:all 0.1s; }
+  .stats-diff-tab { font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.1em; padding:4px 12px; border:none; border-right:1px solid var(--border); background:var(--paper); color:var(--ink-muted); cursor:pointer; flex:1; transition:all 0.1s; }
   .stats-diff-tab:last-child { border-right:none; }
   .stats-diff-tab.active { background:var(--ink); color:var(--paper); }
   .nav-area { display:flex; align-items:center; gap:0; margin-bottom:16px; border:1.5px solid var(--ink); border-radius:2px; overflow:hidden; box-shadow:2px 2px 0 var(--border); }
-  .diff-tab { font-family:'Courier Prime',monospace; font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase; padding:7px 16px; border:none; background:var(--paper); color:var(--ink-muted); cursor:pointer; transition:all 0.15s; border-right:1px solid var(--border); }
+  .diff-tab { font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.15em; text-transform:uppercase; padding:7px 16px; border:none; background:var(--paper); color:var(--ink-muted); cursor:pointer; transition:all 0.15s; border-right:1px solid var(--border); }
   .diff-tab:last-child { border-right:none; }
   .diff-tab:hover { background:var(--paper-dark); color:var(--ink); }
   .diff-tab.active { background:var(--ink); color:var(--paper); }
-  .puzzle-nav { display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:0.65rem; color:var(--ink-muted); letter-spacing:0.1em; }
-  .nav-btn { width:26px; height:26px; border:1.5px solid var(--border); background:var(--paper); border-radius:2px; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; transition:all 0.12s; color:var(--ink); box-shadow:1px 1px 0 var(--border); }
+  .puzzle-nav { display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:1rem; color:var(--ink-muted); letter-spacing:0.1em; }
+  .nav-btn { width:26px; height:26px; border:1.5px solid var(--border); background:var(--paper); border-radius:2px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all 0.12s; color:var(--ink); box-shadow:1px 1px 0 var(--border); }
   .nav-btn:hover { background:var(--ink); color:var(--paper); border-color:var(--ink); }
-  .puzzle-num { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--ink); min-width:80px; text-align:center; }
-  .counters { display:flex; gap:24px; margin-bottom:14px; align-items:center; }
-  .counter { display:flex; align-items:center; gap:6px; }
-  .counter-sym { font-size:1.2rem; }
-  .counter-info { text-align:left; }
-  .counter-val { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; line-height:1; }
+  .puzzle-num { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--ink); min-width:80px; display:flex; align-items:baseline; justify-content:center; gap:0.15em; }
+  .puzzle-num .no-num { display:inline-block; min-width:1.3em; text-align:left; font-variant-numeric:lining-nums tabular-nums; }
+  .counters { display:flex; gap:24px; margin-bottom:14px; align-items:baseline; }
+  .counter { display:flex; align-items:baseline; gap:6px; }
+  .counter-sym { font-size:1.2rem; line-height:1; }
+  .counter-val { font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:700; line-height:1; font-variant-numeric:lining-nums tabular-nums; }
   .counter-val.spade { color:var(--spade); } .counter-val.heart { color:var(--heart); }
-  .counter-label { font-size:0.52rem; color:var(--ink-muted); letter-spacing:0.1em; text-transform:uppercase; }
   .counter-sep { width:1px; height:28px; background:var(--border); }
   .game-wrap { position:relative; display:inline-block; margin-bottom:18px; }
   .grid-frame { padding:3px; background:var(--ink); border-radius:2px; box-shadow:4px 4px 0 var(--ink-light),8px 8px 0 var(--border); }
@@ -83,21 +78,17 @@
   .cell.pop .cell-inner { animation:inkdrop 0.2s cubic-bezier(0.34,1.4,0.64,1); }
   .cell-inner { display:flex; align-items:center; justify-content:center; width:100%; height:100%; }
   .constraints-layer { position:absolute; inset:3px; pointer-events:none; z-index:10; }
-  .constraint-badge { position:absolute; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center; transform:translate(-50%,-50%); font-size:0.5rem; font-weight:700; font-family:'Courier Prime',monospace; box-shadow:0 0 0 2px var(--paper); }
+  .constraint-badge { position:absolute; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; transform:translate(-50%,-50%); font-size:1rem; font-weight:700; font-family:'Courier Prime',monospace; box-shadow:0 0 0 2px var(--paper); }
   .constraint-badge.eq { background:var(--eq-color); color:var(--paper); }
   .constraint-badge.neq { background:var(--neq-color); color:var(--paper); }
   .controls { display:flex; gap:0; border:1.5px solid var(--ink); border-radius:2px; overflow:hidden; box-shadow:2px 2px 0 var(--border); margin-bottom:14px; }
-  .ctrl-btn { font-family:'Courier Prime',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; padding:9px 18px; border:none; border-right:1px solid var(--border); background:var(--paper); color:var(--ink-light); cursor:pointer; transition:all 0.12s; }
+  .ctrl-btn { font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.12em; text-transform:uppercase; padding:9px 18px; border:none; border-right:1px solid var(--border); background:var(--paper); color:var(--ink-light); cursor:pointer; transition:all 0.12s; }
   .ctrl-btn:last-child { border-right:none; }
   .ctrl-btn:hover { background:var(--paper-dark); color:var(--ink); }
-  .ctrl-btn.primary { background:var(--ink); color:var(--paper); font-weight:700; }
-  .ctrl-btn.primary:hover { background:var(--ink-light); }
-  .status { font-size:0.65rem; letter-spacing:0.08em; color:var(--ink-muted); min-height:18px; text-align:center; font-style:italic; }
+  .status { font-size:1rem; letter-spacing:0.08em; color:var(--ink-muted); min-height:18px; text-align:center; font-style:italic; }
   .status.ok { color:var(--success); font-style:normal; font-weight:700; }
   .status.err { color:var(--accent-red); font-style:normal; }
-  .progress-bar-wrap { width:100%; max-width:400px; height:3px; background:var(--border); border-radius:2px; margin:12px 0 0; overflow:hidden; }
-  .progress-bar-fill { height:100%; background:var(--ink); transition:width 0.3s ease; border-radius:2px; }
-  .completion-badge { display:inline-block; font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; background:var(--success); color:var(--paper); padding:2px 8px; border-radius:1px; margin-left:8px; vertical-align:middle; opacity:0; transition:opacity 0.3s; }
+  .completion-badge { display:inline-block; font-size:1rem; letter-spacing:0.15em; text-transform:uppercase; background:var(--success); color:var(--paper); padding:2px 8px; border-radius:1px; margin-left:8px; vertical-align:middle; opacity:0; transition:opacity 0.3s; }
   .completion-badge.show { opacity:1; }
 
   /* Generating overlay */
@@ -114,9 +105,9 @@
   @keyframes spinonce { 0%{transform:rotate(-180deg) scale(0);opacity:0} 100%{transform:rotate(0deg) scale(1);opacity:1} }
   .win-title { font-family:'Playfair Display',serif; font-size:clamp(2rem,8vw,4rem); font-weight:900; color:var(--ink); letter-spacing:-0.02em; animation:fadeup 0.5s 0.2s both ease; }
   .win-time { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--heart); font-weight:700; animation:fadeup 0.5s 0.35s both ease; }
-  .win-sub { font-size:0.65rem; color:var(--ink-muted); letter-spacing:0.3em; text-transform:uppercase; animation:fadeup 0.5s 0.45s both ease; }
+  .win-sub { font-size:1rem; color:var(--ink-muted); letter-spacing:0.3em; text-transform:uppercase; animation:fadeup 0.5s 0.45s both ease; }
   .win-rule { width:120px; height:1.5px; background:var(--ink); animation:fadeup 0.5s 0.5s both ease; }
-  .win-btn { font-family:'Courier Prime',monospace; font-size:0.7rem; letter-spacing:0.15em; text-transform:uppercase; padding:11px 28px; border:2px solid var(--ink); background:var(--ink); color:var(--paper); cursor:pointer; border-radius:2px; margin-top:4px; transition:all 0.15s; animation:fadeup 0.5s 0.6s both ease; }
+  .win-btn { font-family:'Courier Prime',monospace; font-size:1rem; letter-spacing:0.15em; text-transform:uppercase; padding:11px 28px; border:2px solid var(--ink); background:var(--ink); color:var(--paper); cursor:pointer; border-radius:2px; margin-top:4px; transition:all 0.15s; animation:fadeup 0.5s 0.6s both ease; }
   .win-btn:hover { background:transparent; color:var(--ink); }
   @keyframes fadeup { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
   #confettiCanvas { position:fixed; inset:0; pointer-events:none; z-index:199; display:none; }
@@ -126,6 +117,10 @@
 <body>
 
 <canvas id="confettiCanvas"></canvas>
+
+<div class="top-row">
+  <a class="back-link" href="../index.html">← GAME ROOM</a>
+</div>
 
 <div class="generating" id="generatingOverlay">
   <div class="gen-spinner">♠</div>
@@ -138,28 +133,14 @@
   <div class="rule-line"></div>
 </div>
 <div class="masthead">
-  <div class="masthead-sub">トランプ論理パズル ◆ Card Logic</div>
   <h1><span class="sol">CAR</span><span class="luna">TAE</span></h1>
-  <div class="masthead-tagline">スペードとハートを正しい場所へ配置せよ</div>
 </div>
 <div class="bottom-rule"></div>
 
-<div class="rules-card">
-  <div class="rules-title">◆ 遊び方 / How to Play ◆</div>
-  <div class="rules-grid">
-    <div class="rule"><span class="rule-sym" style="color:var(--spade)">♠</span> 各行・列にスペード3個</div>
-    <div class="rule"><span class="rule-sym" style="color:var(--heart)">♥</span> 各行・列にハート3個</div>
-    <div class="rule"><span class="rule-sym">✕</span> 同じ記号を3連続不可</div>
-    <div class="rule"><span class="rule-sym" style="color:var(--eq-color)">＝</span> 隣接セルが同じ記号</div>
-    <div class="rule"><span class="rule-sym" style="color:var(--neq-color)">×</span> 隣接セルが異なる記号</div>
-    <div class="rule"><span class="rule-sym">右クリ</span>で直接♥を配置</div>
-  </div>
-</div>
-
 <div class="nav-area">
-  <button class="diff-tab active" onclick="switchDiff('易',this)">易</button>
-  <button class="diff-tab" onclick="switchDiff('中',this)">中</button>
-  <button class="diff-tab" onclick="switchDiff('難',this)">難</button>
+  <button class="diff-tab active" onclick="switchDiff('easy',this)">Easy</button>
+  <button class="diff-tab" onclick="switchDiff('normal',this)">Normal</button>
+  <button class="diff-tab" onclick="switchDiff('hard',this)">Hard</button>
 </div>
 
 <div class="timer-bar">
@@ -171,9 +152,9 @@
 <div class="stats-panel" id="statsPanel">
   <div class="stats-title">◆ 成績 / Statistics ◆</div>
   <div class="stats-diff-tabs">
-    <button class="stats-diff-tab active" onclick="switchStatsDiff('易',this)">易</button>
-    <button class="stats-diff-tab" onclick="switchStatsDiff('中',this)">中</button>
-    <button class="stats-diff-tab" onclick="switchStatsDiff('難',this)">難</button>
+    <button class="stats-diff-tab active" onclick="switchStatsDiff('easy',this)">Easy</button>
+    <button class="stats-diff-tab" onclick="switchStatsDiff('normal',this)">Normal</button>
+    <button class="stats-diff-tab" onclick="switchStatsDiff('hard',this)">Hard</button>
   </div>
   <div class="stats-grid">
     <div class="stat-item"><div class="stat-val" id="statSolved">0</div><div class="stat-label">クリア数</div></div>
@@ -187,7 +168,7 @@
 
 <div class="puzzle-nav">
   <button class="nav-btn" onclick="prevPuzzle()">◀</button>
-  <div class="puzzle-num" id="puzzleNum">No.1</div>
+  <div class="puzzle-num"><span class="no-label">No.</span><span class="no-num" id="puzzleNum">1</span></div>
   <button class="nav-btn" onclick="nextPuzzle()">▶</button>
   <span id="completionBadge" class="completion-badge">済</span>
 </div>
@@ -195,18 +176,12 @@
 <div class="counters">
   <div class="counter">
     <div class="counter-sym" style="color:var(--spade);font-size:1.4rem">♠</div>
-    <div class="counter-info">
-      <div class="counter-val spade" id="spadeCount">0</div>
-      <div class="counter-label">Spade</div>
-    </div>
+    <div class="counter-val spade" id="spadeCount">0</div>
   </div>
   <div class="counter-sep"></div>
   <div class="counter">
     <div class="counter-sym" style="color:var(--heart);font-size:1.4rem">♥</div>
-    <div class="counter-info">
-      <div class="counter-val heart" id="heartCount">0</div>
-      <div class="counter-label">Heart</div>
-    </div>
+    <div class="counter-val heart" id="heartCount">0</div>
   </div>
 </div>
 
@@ -217,16 +192,31 @@
   <div class="constraints-layer" id="constraintsLayer"></div>
 </div>
 
-<div class="progress-bar-wrap">
-  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
-</div>
-
 <div class="controls">
   <button class="ctrl-btn" onclick="resetPuzzle()">リセット</button>
-  <button class="ctrl-btn primary" onclick="checkSolution()">チェック</button>
   <button class="ctrl-btn" onclick="showHint()">ヒント</button>
 </div>
-<div class="status" id="status">左クリックで♠、右クリックで♥、もう一度でクリア</div>
+<div class="status" id="status"></div>
+
+<div class="rules-card">
+  <div class="rules-title">遊び方 / How to Play</div>
+  <div class="rules-section">
+    <div class="rule">1つの行・列に<span class="rule-suit">♠</span>・<span class="rule-suit">♥</span>がそれぞれちょうど3枚入る</div>
+  </div>
+  <div class="rules-section">
+    <div class="rules-grid">
+      <div class="rule"><span class="rule-sym" style="color:var(--eq-color)">＝</span> この印の両側の2マスは同じ記号にする</div>
+      <div class="rule"><span class="rule-sym" style="color:var(--neq-color)">×</span> この印の両側の2マスは違う記号にする</div>
+      <div class="rule"><span class="rule-sym">✕</span> 同じ記号を3つ連続で並べない</div>
+    </div>
+  </div>
+  <div class="rules-section">
+    <div class="rules-grid">
+      <div class="rule">クリックで<span class="rule-suit">♠</span>→<span class="rule-suit">♥</span>→空欄の順に切替</div>
+      <div class="rule">右クリックで<span class="rule-suit">♥</span>をワンタッチ配置</div>
+    </div>
+  </div>
+</div>
 
 <div class="win-overlay" id="winOverlay">
   <div class="win-deco">✦</div>
@@ -346,7 +336,7 @@ function makePuzzle(sol, nl, ncCount, rand) {
 
 // Generate one puzzle synchronously (called from worker-like async wrapper)
 function generateOne(diff, seedBase, attempt) {
-  const CONFIGS = { '易':[9,5], '中':[6,8], '難':[3,11] };
+  const CONFIGS = { easy:[9,5], normal:[6,8], hard:[3,11] };
   const [nl, nc] = CONFIGS[diff];
   const rand = rng(seedBase + attempt * 997);
   const sol = genSolution(rand);
@@ -358,8 +348,8 @@ function generateOne(diff, seedBase, attempt) {
 //  PUZZLE CACHE  — pre-generate a pool per difficulty
 // ============================================================
 const CACHE_SIZE = 3; // keep N puzzles ready per diff
-const cache = { '易':[], '中':[], '難':[] };
-const generating = { '易':false, '中':false, '難':false };
+const cache = { easy:[], normal:[], hard:[] };
+const generating = { easy:false, normal:false, hard:false };
 let seedCounter = Date.now();
 
 async function fillCache(diff) {
@@ -394,18 +384,18 @@ async function getPuzzle(diff) {
 // ============================================================
 //  GAME STATE
 // ============================================================
-let currentDiff = '易';
+let currentDiff = 'easy';
 let currentPuzzle = null;
 let userGrid = [];
 let lockedCells = [];
-let statsDiff = '易';
+let statsDiff = 'easy';
 
 // Puzzle history per difficulty: array of puzzle objects
-const history = {'易':[], '中':[], '難':[]};
-let historyIdx = {'易':-1, '中':-1, '難':-1}; // current position in history
+const history = {easy:[], normal:[], hard:[]};
+let historyIdx = {easy:-1, normal:-1, hard:-1}; // current position in history
 
 // Stats: per diff, array of times (seconds)
-const stats = {'易':{solved:0,times:[],streak:0,todaySolved:0}, '中':{solved:0,times:[],streak:0,todaySolved:0}, '難':{solved:0,times:[],streak:0,todaySolved:0}};
+const stats = {easy:{solved:0,times:[],streak:0,todaySolved:0}, normal:{solved:0,times:[],streak:0,todaySolved:0}, hard:{solved:0,times:[],streak:0,todaySolved:0}};
 const completed = {}; // key -> time
 
 // ---- Timer ----
@@ -470,13 +460,12 @@ function showPuzzleAt(idx) {
   userGrid = p.grid.map(r=>[...r]);
   lockedCells = p.grid.map(r=>r.map(v=>v!==0));
   const no = idx + 1;
-  document.getElementById('puzzleNum').textContent=`No.${no}`;
+  document.getElementById('puzzleNum').textContent=no;
   const key = `${currentDiff}-${idx}`;
   document.getElementById('completionBadge').classList.toggle('show', !!completed[key]);
   renderGrid();
   renderConstraints();
   updateCounters();
-  updateProgress();
   setStatus('');
   resetTimer();
 }
@@ -510,7 +499,6 @@ function initPuzzle() {
   renderGrid();
   renderConstraints();
   updateCounters();
-  updateProgress();
   setStatus('');
   resetTimer();
 }
@@ -548,7 +536,7 @@ function setCellVal(cell, r, c, val) {
   cell.classList.remove('error');
   if (val!==0) { cell.classList.remove('pop'); void cell.offsetWidth; cell.classList.add('pop'); }
   if (!timerRunning && val!==0) startTimer();
-  updateCounters(); updateProgress(); highlightErrors();
+  updateCounters(); highlightErrors();
   if (userGrid.flat().every(v=>v!==0) && getErrors().length===0) setTimeout(showWin,300);
 }
 
@@ -568,10 +556,6 @@ function updateCounters() {
   document.getElementById('spadeCount').textContent=sp;
   document.getElementById('heartCount').textContent=ht;
 }
-function updateProgress() {
-  document.getElementById('progressBar').style.width=(userGrid.flat().filter(v=>v!==0).length/(SIZE*SIZE)*100)+'%';
-}
-
 // ---- Validation ----
 function getErrors() {
   const errors=new Set();
@@ -598,13 +582,6 @@ function checkLine(line,idx,type,errors) {
 function highlightErrors() {
   document.querySelectorAll('.cell').forEach(c=>c.classList.remove('error'));
   getErrors().forEach(([r,c])=>{ const el=document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`); if(el) el.classList.add('error'); });
-}
-
-function checkSolution() {
-  if (userGrid.flat().some(v=>v===0)) { setStatus('未入力のセルがあります','err'); return; }
-  highlightErrors();
-  if (getErrors().length===0) showWin();
-  else setStatus('エラーがあります — 赤いセルを確認してください','err');
 }
 
 // ---- Win ----
@@ -642,7 +619,7 @@ function showHint() {
 }
 function setStatus(msg,type='') {
   const el=document.getElementById('status');
-  el.textContent=msg||'左クリックで♠、右クリックで♥、もう一度でクリア';
+  el.textContent=msg;
   el.className='status '+type;
 }
 
@@ -711,8 +688,8 @@ document.addEventListener('contextmenu',e=>{ if(e.target.closest('.cell')) e.pre
 // ---- Boot ----
 // Pre-fill caches for all difficulties in background, then show first puzzle
 (async()=>{
-  fillCache('中'); fillCache('難'); // start background generation
-  await loadNewPuzzle(); // load first 易 puzzle (will fill 易 cache)
+  fillCache('normal'); fillCache('hard'); // start background generation
+  await loadNewPuzzle(); // load first easy puzzle (will fill easy cache)
 })();
 </script>
 </body>
