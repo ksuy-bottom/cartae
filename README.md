@@ -24,6 +24,11 @@
 都道府県のシルエットだけを見て、名前を漢字で当てる形当てクイズ。
 10問・20問・47都道府県、静止・反転・ランダム回転の3ステージから遊べる。
 
+### 🌍 COUNTRY QUIZ
+
+世界の国のシルエットだけを見て、名前を英語で当てる形当てクイズ。
+10問・20問・地域別・世界200ヶ国・地域、静止・反転・ランダム回転の3ステージから遊べる。
+
 ## ▶ プレイ
 
 **[► ここでプレイ](https://laotour-log.github.io/my-games/)**
@@ -42,6 +47,8 @@ my-games/
 │   └── index.html          # IMO & BROCCOLIゲーム本体
 ├── prefecture_quiz/
 │   └── index.html          # PREFECTURE QUIZゲーム本体
+├── country_quiz/
+│   └── index.html          # COUNTRY QUIZゲーム本体
 ├── README.md
 └── LICENSE
 ```
