@@ -754,16 +754,21 @@
   var elThemeIconMoon = document.getElementById('theme-icon-moon');
   var elThemeIconLight = document.getElementById('theme-icon-light');
 
+  function setHidden(el, isHidden) {
+    if (isHidden) el.setAttribute('hidden', '');
+    else el.removeAttribute('hidden');
+  }
+
   function applyTheme(theme) {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      elThemeIconMoon.hidden = true;
-      elThemeIconLight.hidden = false;
+      setHidden(elThemeIconMoon, true);
+      setHidden(elThemeIconLight, false);
       elThemeToggle.setAttribute('aria-label', 'ライトモードに切り替え');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      elThemeIconMoon.hidden = false;
-      elThemeIconLight.hidden = true;
+      setHidden(elThemeIconMoon, false);
+      setHidden(elThemeIconLight, true);
       elThemeToggle.setAttribute('aria-label', 'ダークモードに切り替え');
     }
   }
