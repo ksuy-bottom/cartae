@@ -89,31 +89,37 @@
     min-height: 100dvh;
   }
 
-  .top-nav {
+  .top-row {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.7rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 4px;
+    font-size: 1rem;
     letter-spacing: 0.15em;
     color: var(--sub);
+    text-decoration: none;
   }
-  .top-nav a { color: var(--sub); text-decoration: none; padding: 10px 4px; }
-  .top-nav a:hover { color: var(--accent); }
+  .back-link:hover { color: var(--accent); }
 
   .theme-toggle {
-    min-height: 44px;
-    padding: 6px 12px;
     background: transparent;
     border: 1px solid var(--border);
-    border-radius: 999px;
     color: var(--sub);
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    white-space: nowrap;
   }
   .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .theme-toggle svg { width: 20px; height: 20px; }
 
   h1 {
     font-size: clamp(1.3rem, 5vw, 1.8rem);
@@ -123,7 +129,7 @@
   }
   h1 span { color: var(--accent); }
 
-  .lead { font-size: 0.85rem; color: var(--sub); text-align: center; line-height: 1.8; }
+  .lead { font-size: 1rem; color: var(--sub); text-align: center; line-height: 1.8; }
 
   .btn {
     display: inline-flex;
@@ -134,7 +140,7 @@
     padding: 12px 32px;
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 1rem;
     letter-spacing: 0.1em;
     color: var(--btn-text);
     background: var(--accent);
@@ -146,7 +152,7 @@
   .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(78,224,138,0.25); }
   .btn:active { transform: translateY(0); }
   .btn.secondary { background: transparent; color: var(--accent); border: 1px solid var(--border); }
-  .btn-pass { padding: 10px 24px; font-size: 0.85rem; }
+  .btn-pass { padding: 10px 24px; font-size: 1rem; }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .btn-quit {
@@ -157,7 +163,7 @@
     border: none;
     color: var(--sub);
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 0.8rem;
+    font-size: 1rem;
     letter-spacing: 0.05em;
     cursor: pointer;
   }
@@ -172,7 +178,7 @@
 
   .badge {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 1rem;
     letter-spacing: 0.15em;
     color: var(--accent);
     border: 1px solid var(--border);
@@ -203,7 +209,7 @@
   .mode-card.learn-card .title { color: var(--accent2); }
   .mode-card .body { display: flex; flex-direction: column; gap: 3px; }
   .mode-card .title { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; }
-  .mode-card .desc { font-size: 0.78rem; color: var(--sub); line-height: 1.6; }
+  .mode-card .desc { font-size: 1rem; color: var(--sub); line-height: 1.6; }
 
   /* play / learn shared */
   .hud {
@@ -214,7 +220,7 @@
     font-family: 'Share Tech Mono', monospace;
   }
   .hud-item { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 64px; }
-  .hud-label { font-size: 0.6rem; color: var(--sub); letter-spacing: 0.15em; }
+  .hud-label { font-size: 1rem; color: var(--sub); letter-spacing: 0.15em; }
   .hud-value { font-size: 1.1rem; color: var(--text); }
   .hud-value.miss { color: var(--miss); }
 
@@ -283,7 +289,7 @@
   #answer-input.wrong { border-color: var(--miss); }
 
   .feedback-msg {
-    font-size: 0.8rem;
+    font-size: 1rem;
     color: var(--sub);
     min-height: 1.4em;
     text-align: center;
@@ -291,13 +297,13 @@
   .feedback-msg.wrong { color: var(--miss); }
   .feedback-msg.correct { color: var(--accent); }
 
-  .hint-note { font-size: 0.72rem; color: var(--sub); text-align: center; line-height: 1.7; }
+  .hint-note { font-size: 1rem; color: var(--sub); text-align: center; line-height: 1.7; }
 
   /* learn mode */
   .learn-name { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.05em; color: var(--heading); }
-  .learn-kana { font-size: 0.95rem; color: var(--accent); letter-spacing: 0.1em; }
+  .learn-kana { font-size: 1rem; color: var(--accent); letter-spacing: 0.1em; }
   .learn-nav { width: 100%; display: flex; justify-content: center; align-items: center; gap: 16px; }
-  .learn-progress { font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; color: var(--sub); min-width: 72px; text-align: center; }
+  .learn-progress { font-family: 'Share Tech Mono', monospace; font-size: 1rem; color: var(--sub); min-width: 72px; text-align: center; }
 
   /* result */
   .result-title { font-size: 1.3rem; color: var(--accent); letter-spacing: 0.1em; text-align: center; }
@@ -330,7 +336,7 @@
   .result-grid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .result-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
   .result-card .num { font-family: 'Share Tech Mono', monospace; font-size: 1.5rem; color: var(--text); }
-  .result-card .lbl { font-size: 0.68rem; color: var(--sub); letter-spacing: 0.15em; margin-top: 4px; }
+  .result-card .lbl { font-size: 1rem; color: var(--sub); letter-spacing: 0.15em; margin-top: 4px; }
 
   .share-row {
     width: 100%;
@@ -339,10 +345,10 @@
     justify-content: center;
     gap: 10px;
   }
-  .share-row .btn { padding: 10px 18px; font-size: 0.82rem; text-decoration: none; }
-  .share-note { font-size: 0.78rem; color: var(--accent); min-height: 1.4em; text-align: center; }
+  .share-row .btn { padding: 10px 18px; font-size: 1rem; text-decoration: none; }
+  .share-note { font-size: 1rem; color: var(--accent); min-height: 1.4em; text-align: center; }
 
-  .footer { margin-top: auto; font-size: 0.62rem; letter-spacing: 0.15em; color: var(--sub); opacity: 0.7; text-align: center; }
+  .footer { margin-top: auto; font-size: 1rem; letter-spacing: 0.15em; color: var(--sub); opacity: 0.7; text-align: center; }
   .footer a { color: var(--sub); }
 </style>
 </head>
@@ -350,11 +356,13 @@
 
 <div class="wrap">
 
-  <nav class="top-nav">
-    <a href="../index.html">← GAME ROOM</a>
-    <span>PREFECTURE QUIZ</span>
-    <button class="theme-toggle" id="theme-toggle" aria-label="配色を切り替え">ダーク</button>
-  </nav>
+  <div class="top-row">
+    <a class="back-link" href="../index.html">← GAME ROOM</a>
+    <button class="theme-toggle" id="theme-toggle" aria-label="配色を切り替え">
+      <svg id="theme-icon-moon" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+      <svg id="theme-icon-light" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.1 1.1 1.85V16h4.8v-.25c0-.75.4-1.4 1-1.85A6 6 0 0 0 12 3Z"/></svg>
+    </button>
+  </div>
 
   <!-- LENGTH SELECT (top level) -->
   <section class="screen" id="screen-length">
@@ -844,14 +852,25 @@
 
   var THEME_KEY = 'todofuken_theme_v1';
   var elThemeToggle = document.getElementById('theme-toggle');
+  var elThemeIconMoon = document.getElementById('theme-icon-moon');
+  var elThemeIconLight = document.getElementById('theme-icon-light');
+
+  function setHidden(el, isHidden) {
+    if (isHidden) el.setAttribute('hidden', '');
+    else el.removeAttribute('hidden');
+  }
 
   function applyTheme(theme) {
     if (theme === 'dark') {
       document.documentElement.setAttribute('data-theme', 'dark');
-      elThemeToggle.textContent = 'ライト';
+      setHidden(elThemeIconMoon, true);
+      setHidden(elThemeIconLight, false);
+      elThemeToggle.setAttribute('aria-label', 'ライトモードに切り替え');
     } else {
       document.documentElement.removeAttribute('data-theme');
-      elThemeToggle.textContent = 'ダーク';
+      setHidden(elThemeIconMoon, false);
+      setHidden(elThemeIconLight, true);
+      elThemeToggle.setAttribute('aria-label', 'ダークモードに切り替え');
     }
   }
 
