@@ -6,6 +6,7 @@
 <title>SUDOKU — laotour-log</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
 
   :root {
     --bg: #ffffff;
@@ -21,6 +22,20 @@
     --note-color: #555555;
   }
 
+  :root[data-theme="dark"] {
+    --bg: #1a1a1a;
+    --fg: #eaeaea;
+    --fg-light: #888888;
+    --fg-muted: #555555;
+    --border-thin: #3a3a3a;
+    --cell-selected: #2e2e2e;
+    --cell-related: #262626;
+    --cell-same: #3d3d3d;
+    --given-color: #f2f2f2;
+    --input-color: #bdbdbd;
+    --note-color: #999999;
+  }
+
   html, body { height: 100%; }
 
   body {
@@ -33,37 +48,54 @@
     letter-spacing: 0.04em;
   }
 
+  /* ── TOP ROW ── */
+  .top-row {
+    width: 100%;
+    max-width: 450px;
+    margin: 1.4rem auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-light);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--fg); text-decoration: underline; }
+
+  .theme-toggle {
+    background: transparent;
+    border: 1px solid var(--fg-light);
+    color: var(--fg-light);
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--fg); border-color: var(--fg); }
+  .theme-toggle svg { width: 20px; height: 20px; }
+
   /* ── HEADER ── */
   header {
-    padding: 2.5rem 2rem 1.2rem;
-    border-bottom: 1px solid var(--fg);
+    padding: 1.2rem 2rem 1.2rem;
     text-align: center;
   }
-  .site-id {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--fg-light);
-    margin-bottom: 1rem;
-  }
-  .site-id a { color: inherit; text-decoration: none; }
-  .site-id a:hover { color: var(--fg); }
   h1 {
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-size: clamp(2.6rem, 8vw, 4.2rem);
     font-weight: 400;
     letter-spacing: 0.25em;
     text-transform: uppercase;
     line-height: 1;
   }
-  .tagline {
-    margin-top: 0.4rem;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    color: var(--fg-light);
-    text-transform: uppercase;
-    transition: opacity 0.2s;
-  }
-
   /* ── MAIN ── */
   main {
     flex: 1;
@@ -85,7 +117,7 @@
   .mode-btn {
     background: none; border: none;
     font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 1.3rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--fg-light);
@@ -102,16 +134,10 @@
     gap: 1.8rem;
     align-items: center;
   }
-  .diff-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    color: var(--fg-light);
-    text-transform: uppercase;
-  }
   .diff-btn {
     background: none; border: none;
     font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 1rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--fg-light);
@@ -133,13 +159,6 @@
     line-height: 1;
     font-variant-numeric: tabular-nums;
   }
-  .status-lbl {
-    font-size: 0.52rem;
-    letter-spacing: 0.2em;
-    color: var(--fg-light);
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-  }
 
   /* ── RECORDS ── */
   .records {
@@ -150,7 +169,7 @@
     width: min(90vw, 450px);
   }
   .records-title {
-    font-size: 0.55rem;
+    font-size: 1rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--fg-light);
@@ -166,20 +185,16 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 0.62rem;
+    font-size: 1rem;
     letter-spacing: 0.1em;
     font-variant-numeric: tabular-nums;
     color: var(--fg-light);
   }
   .record-row .rec-rank { color: var(--fg-muted); width: 1.2em; }
   .record-row .rec-time { color: var(--fg); }
-  .record-row.best-ever .rec-time {
-    color: var(--fg);
-    font-weight: 700;
-  }
   .record-row.new-best .rec-time::after {
     content: ' ★';
-    font-size: 0.55rem;
+    font-size: 1rem;
     color: var(--fg);
   }
   .records-best {
@@ -187,7 +202,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 0.6rem;
+    font-size: 1rem;
     letter-spacing: 0.12em;
     color: var(--fg-light);
     border-top: 1px solid var(--border-thin);
@@ -269,14 +284,14 @@
 
   /* ── NUMBERS ── */
   .cell-num {
-    font-size: clamp(13px, 3.6vw, 24px);
+    font-size: clamp(16px, 3.6vw, 24px);
     font-family: 'Courier New', monospace;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
     color: var(--given-color);
   }
-  #grid.mode-6 .cell-num { font-size: clamp(14px, 4vw, 26px); }
+  #grid.mode-6 .cell-num { font-size: clamp(16px, 4vw, 26px); }
 
   .cell.user .cell-num { font-weight: 400; color: var(--input-color); }
 
@@ -349,7 +364,7 @@
   .ctrl-btn {
     background: none; border: none;
     font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 1rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--fg-light);
@@ -360,7 +375,7 @@
   }
   .ctrl-btn:hover   { color: var(--fg); border-bottom-color: var(--fg); }
   .ctrl-btn.note-on { color: var(--fg); border-bottom-color: var(--fg); }
-  .sep { color: var(--fg-muted); font-size: 0.68rem; }
+  .sep { color: var(--fg-muted); font-size: 1rem; }
 
   /* ── CLEAR ANIMATION ── */
   @keyframes cellFlash {
@@ -372,7 +387,7 @@
 
   /* ── COMPLETE MESSAGE ── */
   .complete-msg {
-    font-size: 0.68rem;
+    font-size: 1rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--fg);
@@ -381,31 +396,20 @@
     min-height: 1.2em;
   }
   .complete-msg.show { opacity: 1; }
-
-  /* ── FOOTER ── */
-  footer {
-    border-top: 1px solid var(--fg);
-    padding: 1.1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .footer-left, .footer-right {
-    font-size: 0.58rem;
-    letter-spacing: 0.16em;
-    color: var(--fg-light);
-    text-transform: uppercase;
-  }
 </style>
 </head>
 <body>
 
+<div class="top-row">
+  <a class="back-link" href="../index.html">← GAME ROOM</a>
+  <button class="theme-toggle" id="theme-toggle" aria-label="配色を切り替え">
+    <svg id="theme-icon-moon" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+    <svg id="theme-icon-light" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.1 1.1 1.85V16h4.8v-.25c0-.75.4-1.4 1-1.85A6 6 0 0 0 12 3Z"/></svg>
+  </button>
+</div>
+
 <header>
-  <div class="site-id"><a href="https://laotour-log.github.io/my-games/">laotour-log / games</a></div>
   <h1>SUDOKU</h1>
-  <div class="tagline" id="tagline">// number · logic · 9×9</div>
 </header>
 
 <main>
@@ -418,9 +422,8 @@
 
   <!-- Difficulty -->
   <div class="difficulty-bar">
-    <span class="diff-label">Level</span>
     <button class="diff-btn active" data-diff="easy">EASY</button>
-    <button class="diff-btn"        data-diff="medium">MEDIUM</button>
+    <button class="diff-btn"        data-diff="normal">NORMAL</button>
     <button class="diff-btn"        data-diff="hard">HARD</button>
   </div>
 
@@ -428,7 +431,6 @@
   <div class="status-row">
     <div class="status-item">
       <div class="status-val" id="timer-val">0:00</div>
-      <div class="status-lbl">Time</div>
     </div>
   </div>
 
@@ -476,11 +478,6 @@
 
 </main>
 
-<footer>
-  <div class="footer-left">GAME ROOM // puzzle · logic</div>
-  <div class="footer-right">MIT License © 2026 laotour-log</div>
-</footer>
-
 <script>
 // ═══════════════════════════════════════════════════════════
 // CONFIG PER MODE
@@ -491,7 +488,7 @@ const MODE_CONFIG = {
     size: 9,
     cells: 81,
     boxRows: 3, boxCols: 3,
-    clues: { easy: 36, medium: 30, hard: 26 },
+    clues: { easy: 36, normal: 30, hard: 26 },
     maxNum: 9,
     noteRows: 3, noteCols: 3,
   },
@@ -499,7 +496,7 @@ const MODE_CONFIG = {
     size: 6,
     cells: 36,
     boxRows: 2, boxCols: 3,
-    clues: { easy: 18, medium: 14, hard: 10 },
+    clues: { easy: 18, normal: 14, hard: 10 },
     maxNum: 6,
     noteRows: 2, noteCols: 3,
   },
@@ -631,7 +628,6 @@ const G = {
   puzzle:     [],
   board:      [],
   given:      [],
-  errorCell:  [],
   notes:      [],
   selected:   -1,
   noteMode:   false,
@@ -706,10 +702,6 @@ function buildGrid() {
     const n = +btn.dataset.n;
     btn.classList.toggle('hidden', n > CFG.maxNum);
   });
-
-  // Update tagline
-  document.getElementById('tagline').textContent =
-    `// number · logic · ${CFG.size}×${CFG.size}`;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -725,7 +717,6 @@ function renderAll() {
     const ng      = cell.querySelector('.notes-grid');
 
     cell.className = 'cell';
-    if (isGiven)         cell.classList.add('given');
     if (!isGiven && val) cell.classList.add('user');
 
     if (val !== 0) {
@@ -795,10 +786,8 @@ function inputNumber(n) {
     return;
   }
 
-  const prevVal = G.board[i];
   G.board[i] = n;
   const correct = (n === G.solution[i]);
-  G.errorCell[i] = !correct;
 
   if (correct) {
     G.notes[i].clear();
@@ -814,7 +803,6 @@ function deleteInput() {
   if (i < 0 || G.complete) return;
   if (G.given[i]) return;
   G.board[i] = 0;
-  G.errorCell[i] = false;
   renderAll();
 }
 
@@ -968,7 +956,6 @@ function newGame() {
   G.puzzle    = puzzle;
   G.board     = puzzle.slice();
   G.given     = puzzle.map(v => v !== 0);
-  G.errorCell = new Array(CFG.cells).fill(false);
   G.notes     = Array.from({ length: CFG.cells }, () => new Set());
 
   startTimer();
@@ -982,7 +969,6 @@ function resetGame() {
   G.complete  = false;
   G.selected  = -1;
   G.board     = G.puzzle.slice();
-  G.errorCell = new Array(CFG.cells).fill(false);
   G.notes     = Array.from({ length: CFG.cells }, () => new Set());
   startTimer();
   renderAll();
@@ -1053,6 +1039,58 @@ document.getElementById('note-btn').addEventListener('click', () => {
 // New / Reset
 document.getElementById('new-btn').addEventListener('click', newGame);
 document.getElementById('reset-btn').addEventListener('click', resetGame);
+
+// ═══════════════════════════════════════════════════════════
+// THEME (light / dark)
+// ═══════════════════════════════════════════════════════════
+
+const THEME_KEY = 'sudoku_theme_v1';
+const elThemeToggle = document.getElementById('theme-toggle');
+const elThemeIconMoon = document.getElementById('theme-icon-moon');
+const elThemeIconLight = document.getElementById('theme-icon-light');
+
+function setHidden(el, isHidden) {
+  if (isHidden) el.setAttribute('hidden', '');
+  else el.removeAttribute('hidden');
+}
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    setHidden(elThemeIconMoon, true);
+    setHidden(elThemeIconLight, false);
+    elThemeToggle.setAttribute('aria-label', 'ライトモードに切り替え');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    setHidden(elThemeIconMoon, false);
+    setHidden(elThemeIconLight, true);
+    elThemeToggle.setAttribute('aria-label', 'ダークモードに切り替え');
+  }
+}
+
+function loadSavedTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveTheme(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (e) {
+    // 保存できない環境(プライベートモード等)でも見た目の切り替え自体は続行する
+  }
+}
+
+applyTheme(loadSavedTheme() === 'dark' ? 'dark' : 'light');
+
+elThemeToggle.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  saveTheme(next);
+});
 
 // ═══════════════════════════════════════════════════════════
 // INIT
